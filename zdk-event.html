@@ -1,0 +1,80 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<polymer-element name="zdk-event" attributes="date time duration label" on-click={{eventClick}}>
+	<template>
+		<style>
+			:host {
+				position:absolute;
+				border-radius: 5px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size:0.8em;
+				margin: 0px 2px;
+				right:0px;
+				left:0px;
+				box-sizing:border-box;
+				border:1px solid white;
+				display:none;
+				color:white;
+			}
+			div#event {
+				/* border: 2px solid rgba(127,127,127,0.3); */
+				padding: 2px 4px;
+				box-sizing:border-box;
+			}
+			.time {
+				font-weight: 700;
+			}
+			.title {
+				font-weight: 300;
+			}
+		</style>
+		<div id="event">
+			<span class="time">{{time}}</span> <span class="title">{{label}}</span>
+		</div>
+	</template>
+	<script>
+	Polymer('zdk-event', {
+		time:null,
+		duration:null,
+		label:null,
+		date:null,
+		getStamp: function() {
+			var duration = moment(this.duration, "HH:mm");
+			duration = moment.duration({'hours':duration.hours(),'minutes':duration.minutes()});
+			return {
+				start: moment(this.date+"T"+this.time).valueOf(),
+				end: moment(this.date+"T"+this.time).add(duration).valueOf()
+			};
+		},
+		timeChanged: function(oldValue, newValue) {
+			if( !oldValue || oldValue === newValue ) return;
+			this.setAttribute("time",newValue);
+			this.fire('zdkEventChanged');
+		},
+		durationChanged: function(oldValue, newValue) {
+			if( !oldValue || oldValue === newValue ) return;
+			this.setAttribute("duration",newValue);
+			this.fire('zdkEventChanged');
+		},
+		dateChanged: function(oldValue, newValue) {
+			if( !oldValue || oldValue === newValue ) return;
+			this.setAttribute("date",newValue);
+			this.fire('zdkEventChanged');
+		},
+		labelChanged: function(oldValue, newValue) {
+			if( !oldValue || oldValue === newValue ) return;
+			this.setAttribute("label",newValue);
+			this.fire('zdkEventChanged');
+		},
+		eventClick: function(event, detail, sender) {
+			if( this.classList.contains("ro")) {
+				return;
+			} else {
+				//console.warn(this);
+				this.fire('zdkEventClick',{event:this});
+			}
+		}
+	});
+	</script>
+</polymer-element>

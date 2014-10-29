@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Test Agenda</title>
+		<meta charset="utf-8">
+
+		 <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta name="apple-touch-fullscreen" content="yes">
+		<meta name="mobile-web-app-capable" content="yes">
+
+		<!-- <link href='https://fonts.googleapis.com/css?family=Oxygen:400,700,300' rel='stylesheet' type='text/css'> -->
+		<link href='http://fonts.googleapis.com/css?family=Oxygen+Mono|Oxygen:400,700,300' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="style.css">
+
+		<script src="../platform/platform.js"></script>
+		<script src="../momentjs/min/moment-with-locales.min.js"></script>
+
+		<link rel="import" href="zdk-agenda.html">
+		<link rel="import" href="../zdk-modal/zdk-modal.html">
+		<link rel="import" href="zdk-event.html">
+	</head>
+	<body unresolved>
+		<zdk-agenda i18n="en-gb" hourHeight="40" hourShow="8" view="week" style="width:100%;height:600px">
+			<zdk-event class="event4" date="2014-08-12" time="09:00" duration="01:00" label="Event 2">Description of the event</zdk-event>
+			<zdk-event class="event6" date="2014-08-12" time="10:30" duration="00:30" label="Shopping Delivery"></zdk-event>
+			<zdk-event class="event8" date="2014-08-14" time="09:30" duration="01:00" label="Stand Up"></zdk-event>
+			<zdk-event class="event1" date="2014-08-11" time="14:00" duration="02:30" label="Event 1 suite"></zdk-event>
+			<zdk-event class="event1" date="2014-08-11" time="09:00" duration="02:00" label="Event 1"></zdk-event>
+			<zdk-event class="ro event8" date="2014-08-13" time="14:00" duration="01:30" label="Event 2"></zdk-event>
+			<zdk-event class="event6" date="2014-08-13" time="14:00" duration="02:00" label="Event 1"></zdk-event>
+			<zdk-event class="event10" date="2014-08-13" time="15:00" duration="01:00" label="Event 3"></zdk-event>
+			<zdk-event class="event10" date="2014-08-13" time="17:00" duration="02:00" label="Event 3"></zdk-event>
+			<zdk-event class="ro event10" date="2014-08-13" time="18:00" duration="01:30" label="Event 3"></zdk-event>
+			<zdk-event class="ro event10" date="2014-08-13" time="19:00" duration="01:00" label="Event 3"></zdk-event>
+		</zdk-agenda>
+		<button onclick="addEvent()">add Event</button>
+		<button onclick="editEvent(1)">edit Event 1</button>
+		<button onclick="editEvent(2)">edit Event 2</button>
+
+		<zdk-modal id="modal1" width="400" height="320" class="hide" type="middle" >
+			<div class="box">
+				<header>
+					Edit event
+				</header>
+				<div class="content">
+				<form name="eventForm">
+					<div class="row">
+						<label for="label">Label</label><input type="text" id="label" name="label">
+					</div>
+					<div class="row">
+						<label>Date</label><input type="text" name="date">
+					</div>
+					<div class="row">
+						<label>Time</label><input type="text" name="time">
+					</div>
+					<div class="row">
+						<label>Duration</label><input type="text" name="duration">
+					</div>
+					<div class="row">
+						<label>Comment</label>
+					</div>
+					<textarea name="comment"></textarea>
+				</form>
+				</div>
+				<footer>
+					<button class="red" onclick="boxClose('#modal1')">Cancel</button> <button>Valid</button>
+				</footer>
+			</div>
+		</zdk-modal>
+
+		<script>
+			function boxClose(selector) {
+				document.querySelector(selector).hide();
+			}
+			function addEvent() {
+				var event = document.createElement("zdk-event");
+				event.setAttribute("date","2014-08-07");
+				event.setAttribute("time","18:00");
+				event.setAttribute("duration","02:30");
+				event.setAttribute("label","Apero");
+				event.classList.add("event5");
+				agenda = document.querySelector("zdk-agenda");
+				// agenda.appendChild(event);
+				event = agenda.addEvent({ date:"2014-08-07",time:"18:00",duration:"02:30",label:"Apero"});
+				event.classList.add("event5");
+				agenda.drawEvents();
+			}
+			function editEvent(evt) {
+				switch(evt) {
+						case 1:
+							var event = document.querySelector("zdk-event[date='2014-08-11'][time='09:00']");
+							if(event) event.time = "10:00";
+							break;
+						case 2:
+							var event = document.querySelector("zdk-event[date='2014-08-11'][time='14:00']");
+							if(event) event.time = "08:00";
+							break;
+				}
+			}
+			/*
+			window.addEventListener("click", function(evt) {
+				if (evt.target.tagName.toLowerCase() === "zdk-event") {
+					console.log(evt.target);
+				}
+			}, false);
+			*/
+			window.addEventListener("polymer-ready", function() {
+				console.log("polymer ready");
+				document.querySelector("zdk-agenda").addEventListener("zdkEventClick", function(evt) {
+					// console.log(event);
+					var event = evt.detail.event;
+					var modal = document.querySelector("#modal1");
+					var form = document.forms["eventForm"];
+					form.label.value = event.label;
+					form.date.value = event.date;
+					form.time.value = event.time;
+					form.duration.value = event.duration;
+					form.comment.value = event.textContent;
+					modal.show();
+				},false);
+			},false);
+		</script>
+	</body>
+</html>

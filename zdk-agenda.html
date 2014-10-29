@@ -1,0 +1,418 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../scroll/my-scrollbar.html">
+<link rel="import" href="./zdk-event.html">
+
+<polymer-element name="zdk-agenda" attributes="date i18n view hourHeight hourShow">
+	<template>
+		<link rel="stylesheet" href="zdk-agenda.css">
+		<div id="agenda">
+			<div id="banner">
+				<div class="hours"></div>
+				<div><img src="left.png" id="previous"> <span id="today">today</span> <img src="right.png" id="next"></div>
+				<div class="date">du 04 Aout au 10 Aout</div>
+				<div id="buttonBar"><button id="day">Jour</button><button id="week" class="selected">Semaine</button><button id="month">Mois</button><!--<button id="planning">Planning</button>--></div>
+			</div>
+			<div id="weekdays">
+				<div class="hours"></div>
+				<template repeat = '{{ day in days }}' >
+					<div class="weekday">
+						<span class="day">{{day.day}}</span><span class="date">{{day.date}}</span>
+					</div>
+				</template>
+			</div>
+			<my-scrollarea forced="true" vanishing="true">
+				<div class="view">
+					<canvas style="width:100%"></canvas>
+					<div class="hours"></div>
+					<div class="days"></div>
+				</div>
+				<div class="monthview" style="height:600px">
+				</div>
+			</my-scrollarea>
+		</div>
+	</template>
+	<script>
+	// ( function() {
+		function drawWeekDays(obj) {
+			console.info("drawWeekDays");
+			var day,format, type;
+
+			moment.locale( obj.i18n );
+			// get the first day of the week
+			var fday = moment(obj.day).startOf("week");
+
+			var bannerDate = obj.$.banner.querySelector(".date");
+			bannerDate.innerHTML = fday.format("DD MMM")+ " - " + moment(fday).add(6,'d').format("DD MMM YYYY");
+
+			var days = obj.$.agenda.querySelector(".view .days");
+			var content = "";
+
+			obj.days = [];
+			format = ( obj.$.agenda.offsetWidth > 900 )?"dddd":"ddd";
+			for ( var i=0; i < 7; i++) {
+				day = moment(fday).add(i,'d');
+				type = "";
+				if( day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD") ) type = "today";
+				day = { day: day.format(format) , date:day.format("DD"), data: day.format("YYYY-MM-DD"), type: type };
+				obj.days.push(day);
+				content+= '<div class="dayview '+day.type+'"  data-date="'+day.data+'" style="height:'+ (24 * obj.hourHeight)+'px"></div>'
+			}
+			days.innerHTML = content;
+			obj.drawEvents();
+			obj.setTime();
+		}
+
+		function drawDay(obj) {
+			obj.days = [];
+			var day = {
+				day: obj.day.format("dddd") ,
+				date:obj.day.format("DD"),
+				data: obj.day.format("YYYY-MM-DD"),
+				type: ( obj.day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD") )?"today":""
+			};
+			obj.days.push( day );
+			var bannerDate = obj.$.banner.querySelector(".date");
+			bannerDate.innerHTML = obj.day.format("ddd LL");
+
+			var days = obj.$.agenda.querySelector(".view .days");
+			var content = '<div class="dayview '+day.type+'"  data-date="'+day.data+'" style="height:'+ (24 * obj.hourHeight)+'px"></div>';
+			days.innerHTML = content;
+
+			obj.drawEvents();
+			obj.setTime();
+		}
+
+		function drawMonth(obj) {
+			var day,format, div, fday, week;
+			moment.locale( obj.i18n );
+
+			var view = obj.$.agenda.querySelector(".monthview");
+			var content = "";
+
+			// Draw days bar
+			obj.days = [];
+			fday = moment(obj.day).startOf("week");
+			format = ( obj.$.agenda.offsetWidth > 900 )?"dddd":"ddd";
+			for ( var i=0; i < 7; i++) {
+				day = moment(fday).add(i,'d');
+				day = { day: day.format(format) };
+				obj.days.push(day);
+			}
+
+			// get the first day of the month
+			fday = moment(obj.day).date(1).weekday(0);
+			var bannerDate = obj.$.banner.querySelector(".date");
+			bannerDate.innerHTML = obj.day.format("MMM YYYY");
+
+			var today = moment();
+			for(var w=0;w<6;w++) {
+				week = "";
+				for(var d=0;d<7;d++) {
+					day = { date: fday.date(), data:fday.format("YYYY-MM-DD"), type: "" };
+					if(fday.year()==today.year() && fday.month()==today.month() && fday.date()==today.date()  ) {
+						day.type = "today";
+					}
+					if(fday.month()!=obj.day.month()) day.type += (day.type.length?" ":"")+"d1";
+					if([0,6].indexOf(fday.day()) !== -1) day.type += (day.type.length?" ":"")+"we";
+					week += '<div class="day '+day.type+'" data-date="'+day.data+'">';
+					week += '<header>'+day.date+'</header>';
+					week += '</div>';
+					/*
+					div.addEventListener("click",function(){ that.dateClick(this.getAttribute("data-date")) },false);
+					*/
+					fday.add('d',1);
+				}
+				content += '<div class="row">'+week+'</div>';
+			}
+			view.innerHTML = content;
+			obj.drawEvents();
+		}
+
+		function selectView(obj) {
+			console.info("selectView");
+			if(obj.view === "month") {
+				obj.$.agenda.querySelector(".view").style.display = "none";
+				obj.$.agenda.querySelector(".monthview").style.display = "";
+				obj.$.weekdays.querySelector(".hours").style.display = "none";
+				obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
+				obj.setTime(0);
+			} else {
+				obj.$.agenda.querySelector(".view").style.display = "";
+				obj.$.weekdays.querySelector(".hours").style.display = "";
+				obj.$.agenda.querySelector(".monthview").style.display = "none";
+				obj.setTime(obj.hourShow);
+			}
+			obj.$.buttonBar.querySelector(".selected").classList.remove("selected");
+			obj.$.buttonBar.querySelector("#"+obj.view).classList.add("selected");
+			obj.draw();
+		}
+
+		Polymer('zdk-agenda', {
+			day: null,
+			i18n: null,
+			view: 'week',
+			hourHeight:50,
+			hourShow:8,
+			days:[],
+			ready: function() {
+				console.info("ready");
+				this.i18n = this.i18n?this.i18n:navigator.language || navigator.userLanguage;
+				moment.locale( this.i18n );
+				this.day = (typeof this.date === "string")?moment(this.date):moment();
+
+				var that = this;
+				this.$.banner.querySelector("#previous").addEventListener("click", function() { that.previous(); }, false);
+				this.$.banner.querySelector("#next").addEventListener("click", function() { that.next(); }, false);
+				this.$.banner.querySelector("#today").addEventListener("click", function() { that.today(); }, false);
+				this.$.buttonBar.addEventListener("click", function(evt) {
+					if ( evt.target === that.$.buttonBar.querySelector(".selected") ) return;
+					that.$.buttonBar.querySelector(".selected").classList.remove("selected");
+					evt.target.classList.add("selected");
+					that.view = evt.target.id;
+					selectView(that);
+				}, true);
+				window.addEventListener("resize", function() { that.draw(); },false);
+				this.drawBG();
+
+				this.addEventListener('zdkEventChanged', function(evt) {
+					var event = evt.target;
+					if( event.duration ) {
+						var duration = moment(event.duration, "HH:mm");
+						duration = ( duration.hours() + duration.minutes() / 60 ) * that.hourHeight;
+						event.style.height = duration + "px";
+					}
+					if( event.time ) {
+						var time = moment(event.time, "HH:mm");
+						event.style.top = ( ( time.hours() + time.minutes()/60 ) * that.hourHeight ) + "px";
+					}
+					that.drawEvents();
+				}, true);
+			},
+			domReady: function() {
+				console.info("domReady");
+				// this.orderEvents();
+				selectView(this);
+				// this.setTime(this.hourShow);
+			},
+			i18nChanged: function(oldValue, newValue) {
+				if( !oldValue ) return;
+				this.i18n = newValue?newValue:navigator.language || navigator.userLanguage;
+				this.draw();
+			},
+			draw: function() {
+				console.info("draw");
+				switch( this.view ) {
+					case 'agenda':
+					case 'month':
+						drawMonth(this);
+						break;
+					case 'week':
+						drawWeekDays(this);
+						break;
+					case 'day':
+						drawDay(this);
+						break;
+				}
+			},
+			drawBG: function() {
+				console.info("drawBG");
+				var canvas = this.$.agenda.querySelector("canvas");
+				var hours =  this.$.agenda.querySelector(".view .hours");
+				canvas.width  = this.$.agenda.offsetWidth;
+				canvas.height = 24 * this.hourHeight;
+				canvas.style.height = canvas.height + "px";
+
+				function drawBG(obj) {
+					var i,
+						ctx = canvas.getContext("2d");
+
+					ctx.lineWidth=1;
+					ctx.strokeStyle="#eeeeee";
+					for( i=0;i<24;i++) {
+						ctx.beginPath();
+							ctx.moveTo(0,(i + 0.5) * obj.hourHeight);
+							ctx.lineTo(canvas.width, (i + 0.5) * obj.hourHeight);
+						ctx.stroke();
+					}
+					ctx.strokeStyle="#999999";
+					for( i=0;i<24;i++) {
+						ctx.beginPath();
+							ctx.moveTo(0,(i+1) * obj.hourHeight);
+							ctx.lineTo(canvas.width,(i+1)* obj.hourHeight);
+						ctx.stroke();
+					}
+				}
+
+				function pad(n, width, z) {
+					z = z || '0';
+					n = n + '';
+					return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+				}
+
+				function drawHours( obj ) {
+					var i, div;
+
+					for ( i = 1; i<25; i++) {
+						div = document.createElement("div");
+						div.innerHTML = pad(i,2);
+						div.style.bottom = ( (24 - i) * obj.hourHeight) + "px";
+						hours.appendChild(div);
+					}
+				}
+
+				drawBG( this );
+				drawHours( this );
+			},
+			orderEvents: function() {
+				console.info("orderEvents");
+				// orders the event by date and time
+				var events = [].slice.call(this.querySelectorAll("zdk-event"));
+				events.sort( function(a, b) {
+					var timeA = moment(a.getAttribute("date")+"T"+a.getAttribute("time")).valueOf();
+					var timeB = moment(b.getAttribute("date")+"T"+b.getAttribute("time")).valueOf();
+					return timeA - timeB;
+				});
+				var that = this;
+				var doc = document.createDocumentFragment();
+				events.forEach( function(event, i) {
+					if( event.getAttribute("duration") ) {
+						var duration = moment(event.getAttribute("duration"), "HH:mm");
+						duration = ( duration.hours() + duration.minutes() / 60 ) * that.hourHeight;
+						event.style.height = duration + "px";
+					}
+					if( event.getAttribute("time") ) {
+						var time = moment(event.getAttribute("time"), "HH:mm");
+						event.style.top = ( ( time.hours() + time.minutes()/60 ) * that.hourHeight ) + "px";
+					}
+					event.style.display = "block";
+					event.setAttribute("data-num",i);
+					doc.appendChild(event.cloneNode(true));
+				});
+				return doc;
+			},
+			drawEvents: function() {
+				console.info("drawEvents");
+				console.log(document);
+				if( !this.querySelectorAll("zdk-event").length ) return;
+
+				var doc = this.orderEvents();
+
+				var that = this;
+				if(this.view === "month") {
+					if( !this.$.agenda.querySelectorAll(".monthview .day").length ) {
+						setTimeout( function() { that.drawEvents() }, 0);
+						return;
+					}
+					[].slice.call(this.$.agenda.querySelectorAll(".monthview .eventMonth")).forEach( function(event) {
+						event.parentNode.removeChild(event);
+					});
+					[].slice.call(this.$.agenda.querySelectorAll(".monthview .day")).forEach( function(day) {
+						var events = doc.querySelectorAll("zdk-event[date='"+day.getAttribute("data-date")+"']");
+						if( events.length ) {
+							[].slice.call(events).forEach( function ( event ) {
+								var div = document.createElement("div");
+								div.className = event.className;
+								div.classList.add("eventMonth");
+								if( event.id ) div.id = event.id;
+								div.setAttribute("data-num",event.getAttribute("data-num"));
+								if(event.classList.contains("ro")) div.setAttribute("data-ro",true);
+								div.innerHTML = '<span class="time">'+event.getAttribute("time")+'</span> <span class="title">'+event.getAttribute("label")+'</span>';
+								day.appendChild(div);
+								div.addEventListener("click", function() {
+									if(!event.classList.contains("ro")) {
+										that.fire("zdkEventClick",{ event:event });
+									}
+								}, false);
+							});
+						}
+					});
+				} else {
+					// be sure that I'mon the right view
+					if( !this.$.agenda.querySelectorAll(".view .dayview").length ) {
+						setTimeout( function() { that.drawEvents() }, 0);
+						return;
+					}
+					[].slice.call(this.$.agenda.querySelectorAll(".view zdk-event")).forEach( function(event) {
+						event.parentNode.removeChild(event);
+					});
+					[].slice.call(this.$.agenda.querySelectorAll(".view .dayview")).forEach( function(day) {
+						var events = doc.querySelectorAll("zdk-event[date='"+day.getAttribute("data-date")+"']");
+						if( events.length ) {
+							// console.log( day.getAttribute("data-date") , events.length );
+							[].slice.call(events).forEach( function ( event, indx ) {
+								var nb = 0;
+								var node = event;
+								var prev = prev = events[indx-1];
+								while ( prev && node.getStamp().start < prev.getStamp().end ) {
+									nb++;
+									node = prev;
+									prev = events[indx-1-nb];
+								}
+								for( var j = 1; j <= nb; j++ ) {
+									day.children[indx - j].style.left = (100/(nb+1) * (nb-j))+"%";
+								}
+								event.style.left = (100 - 100/(nb+1))+"%";
+
+								node = day.appendChild( event.cloneNode(true) );
+								// node.addEventListener("click", function() { console.log(this); }, false);
+							});
+						}
+					});
+				}
+			},
+			setTime: function(hour) {
+				var hour = (hour !== undefined && !isNaN(hour))? hour : this.hourShow;
+				var view = this.$.agenda.querySelector("my-scrollarea");
+				view.scrollTo(hour * this.hourHeight);
+			},
+			previous: function() {
+				switch( this.view ) {
+					case "month":
+						this.day.subtract(1,'M');
+						break;
+					case 'week':
+						this.day.subtract(1,'w');
+						break;
+					case 'day':
+						this.day.subtract(1,'d');
+						break;
+				}
+				this.draw();
+			},
+			next: function() {
+				switch( this.view ) {
+					case "month":
+						this.day.add(1,'M');
+						break;
+					case 'week':
+						this.day.add(1,'w');
+						break;
+					case 'day':
+						this.day.add(1,'d');
+						break;
+				}
+				this.draw();
+			},
+			today: function() {
+				this.day = moment();
+				this.draw();
+			},
+			addEvent: function(obj) {
+				console.info("addEvent");
+				var event = document.createElement("zdk-event");
+				event.setAttribute("date",obj.date);
+				event.setAttribute("time",obj.time);
+				event.setAttribute("duration",obj.duration);
+				event.setAttribute("label",obj.label);
+				event = this.appendChild(event);
+				return event;
+			},
+			childrenUpdated: function(observer, mutations) {
+				console.info("children updated");
+				this.drawEvents();
+				// this.onMutation(this, this.childrenUpdated);
+			}
+		});
+	// })();
+	</script>
+</polymer-element>
