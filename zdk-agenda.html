@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../scroll/my-scrollbar.html">
+<link rel="import" href="../zdk-scrollarea/zdk-scrollarea.html">
 <link rel="import" href="./zdk-event.html">
 
 <polymer-element name="zdk-agenda" attributes="date i18n view hourHeight hourShow">
@@ -20,7 +20,7 @@
 					</div>
 				</template>
 			</div>
-			<my-scrollarea forced="true" vanishing="true">
+			<zdk-scrollarea forced="true" vanishing="true">
 				<div class="view">
 					<canvas style="width:100%"></canvas>
 					<div class="hours"></div>
@@ -28,7 +28,7 @@
 				</div>
 				<div class="monthview" style="height:600px">
 				</div>
-			</my-scrollarea>
+			</zdk-scrollarea>
 		</div>
 	</template>
 	<script>
@@ -134,7 +134,7 @@
 				obj.$.agenda.querySelector(".view").style.display = "none";
 				obj.$.agenda.querySelector(".monthview").style.display = "";
 				obj.$.weekdays.querySelector(".hours").style.display = "none";
-				obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
+				obj.$.agenda.querySelector("zdk-scrollarea").scrollTo(0);
 				obj.setTime(0);
 			} else {
 				obj.$.agenda.querySelector(".view").style.display = "";
@@ -362,7 +362,7 @@
 			},
 			setTime: function(hour) {
 				var hour = (hour !== undefined && !isNaN(hour))? hour : this.hourShow;
-				var view = this.$.agenda.querySelector("my-scrollarea");
+				var view = this.$.agenda.querySelector("zdk-scrollarea");
 				view.scrollTo(hour * this.hourHeight);
 			},
 			previous: function() {

@@ -110,17 +110,11 @@ span.date {
 	font-size: 2em;
 }
 
-my-scrollarea {
+zdk-scrollarea {
 	-webkit-flex: 1;
 	-ms-flex:1;
 	flex:1;
 }
-
-my-scrollarea::shadow .scrollBar {
-	right:0px;
-}
-
-my-scrollarea .scrollBar { right:0px; }
 
 div.hours {
 	position:relative;
