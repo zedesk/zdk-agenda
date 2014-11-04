@@ -1,17 +1,32 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../core-header-panel/core-header-panel.html">
+<link rel="import" href="../core-toolbar/core-toolbar.html">
+<link rel="import" href="../core-icons/core-icons.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../scroll/my-scrollbar.html">
 <link rel="import" href="./zdk-event.html">
+
+<script src="../momentjs/min/moment-with-locales.min.js"></script>
 
 <polymer-element name="zdk-agenda" attributes="date i18n view hourHeight hourShow">
 	<template>
 		<link rel="stylesheet" href="zdk-agenda.css">
-		<div id="agenda">
-			<div id="banner">
-				<div class="hours"></div>
-				<div><img src="left.png" id="previous"> <span id="today">today</span> <img src="right.png" id="next"></div>
-				<div class="date">du 04 Aout au 10 Aout</div>
-				<div id="buttonBar"><button id="day">Jour</button><button id="week" class="selected">Semaine</button><button id="month">Mois</button><!--<button id="planning">Planning</button>--></div>
-			</div>
+		<core-header-panel id="agenda">
+			<core-toolbar id="banner">
+				<paper-icon-button icon="arrow-back" id="previous" on-tap="{{previous}}"></paper-icon-button>
+				<paper-button id="today" on-tap="{{today}}">Today</paper-button>
+				<paper-icon-button icon="arrow-forward" id="next" on-tap="{{next}}"></paper-icon-button>
+
+				<div class="date" flex>du 04 Aout au 10 Aout</div>
+
+				<div id="buttonBar">
+					<paper-button id="day">Jour</paper-button>
+					<paper-button id="week" class="selected">Semaine</paper-button>
+					<paper-button id="month">Mois</paper-button>
+					<!--<paper-button id="planning">Planning</paper-button>-->
+				</div>
+			</core-toolbar>
 			<div id="weekdays">
 				<div class="hours"></div>
 				<template repeat = '{{ day in days }}' >
@@ -20,7 +35,7 @@
 					</div>
 				</template>
 			</div>
-			<my-scrollarea forced="true" vanishing="true">
+			<div forced="true" vanishing="true">
 				<div class="view">
 					<canvas style="width:100%"></canvas>
 					<div class="hours"></div>
@@ -28,8 +43,8 @@
 				</div>
 				<div class="monthview" style="height:600px">
 				</div>
-			</my-scrollarea>
-		</div>
+			</div>
+		</core-header-panel>
 	</template>
 	<script>
 	// ( function() {
@@ -105,9 +120,9 @@
 			bannerDate.innerHTML = obj.day.format("MMM YYYY");
 
 			var today = moment();
-			for(var w=0;w<6;w++) {
+			for (var w = 0; w < 6; w++) {
 				week = "";
-				for(var d=0;d<7;d++) {
+				for (var d = 0; d < 7; d++) {
 					day = { date: fday.date(), data:fday.format("YYYY-MM-DD"), type: "" };
 					if(fday.year()==today.year() && fday.month()==today.month() && fday.date()==today.date()  ) {
 						day.type = "today";
@@ -134,7 +149,7 @@
 				obj.$.agenda.querySelector(".view").style.display = "none";
 				obj.$.agenda.querySelector(".monthview").style.display = "";
 				obj.$.weekdays.querySelector(".hours").style.display = "none";
-				obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
+				//obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
 				obj.setTime(0);
 			} else {
 				obj.$.agenda.querySelector(".view").style.display = "";
@@ -161,9 +176,7 @@
 				this.day = (typeof this.date === "string")?moment(this.date):moment();
 
 				var that = this;
-				this.$.banner.querySelector("#previous").addEventListener("click", function() { that.previous(); }, false);
-				this.$.banner.querySelector("#next").addEventListener("click", function() { that.next(); }, false);
-				this.$.banner.querySelector("#today").addEventListener("click", function() { that.today(); }, false);
+				
 				this.$.buttonBar.addEventListener("click", function(evt) {
 					if ( evt.target === that.$.buttonBar.querySelector(".selected") ) return;
 					that.$.buttonBar.querySelector(".selected").classList.remove("selected");
@@ -174,7 +187,7 @@
 				window.addEventListener("resize", function() { that.draw(); },false);
 				this.drawBG();
 
-				this.addEventListener('zdkEventChanged', function(evt) {
+				this.addEventListener('zdk-event-changed', function(evt) {
 					var event = evt.target;
 					if( event.duration ) {
 						var duration = moment(event.duration, "HH:mm");
@@ -320,7 +333,7 @@
 								day.appendChild(div);
 								div.addEventListener("click", function() {
 									if(!event.classList.contains("ro")) {
-										that.fire("zdkEventClick",{ event:event });
+										that.fire("zdk-event-click",{ event:event });
 									}
 								}, false);
 							});
@@ -362,10 +375,11 @@
 			},
 			setTime: function(hour) {
 				var hour = (hour !== undefined && !isNaN(hour))? hour : this.hourShow;
-				var view = this.$.agenda.querySelector("my-scrollarea");
-				view.scrollTo(hour * this.hourHeight);
+				//var view = this.$.agenda.querySelector("my-scrollarea");
+				//view.scrollTo(hour * this.hourHeight);
 			},
 			previous: function() {
+				console.log('previous');
 				switch( this.view ) {
 					case "month":
 						this.day.subtract(1,'M');
