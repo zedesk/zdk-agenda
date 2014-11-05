@@ -1,16 +1,12 @@
-% zdk-Agenda
-% fablec
-% August 2014
-
-# zdk-Agenda
+# zdk-agenda
 
 ## Introduction
 
-A agenda component, that present different views of a calendar, day, week, month.
+zdk-agenda is a calendar/agenda web component, using Polymer, that present different views of a calendar: day, week, month.
 
-## todo
+## Todo-list
 
- 1. send an event on clicking an "event"
- 1. Change to day view on clicking on the Date
-
-
+* Send an event on clicking an "event"
+* Change to day view on clicking on the Date
+* Handle cell overflow in the month view (add a "+n" button to display hidden events, like in Google Calendar)
+* Add the ability to move/resize events with the mouse
