@@ -1,6 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 
-<polymer-element name="zdk-event" attributes="date time duration label" on-click={{eventClick}}>
+<polymer-element name="zdk-event" attributes="date time end label" on-click={{eventClick}}>
 	<template>
 		<style>
 			:host {
@@ -52,9 +52,9 @@
 			this.setAttribute("time", newValue);
 			this.fire('zdk-event-changed');
 		},
-		durationChanged: function(oldValue, newValue) {
+		endChanged: function(oldValue, newValue) {
 			if ( !oldValue || oldValue === newValue ) return;
-			this.setAttribute("duration", newValue);
+			this.setAttribute("end", newValue);
 			this.fire('zdk-event-changed');
 		},
 		dateChanged: function(oldValue, newValue) {

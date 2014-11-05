@@ -48,10 +48,10 @@ div.weekday {
 	text-align: center;
 }
 span.day {
-	display:inline-block;
-	flex:1;
+	display: inline-block;
+	flex: 1;
 	-webkit-flex: 1;
-	-ms-flex:1;
+	-ms-flex: 1;
 }
 span.date {
 	font-family: 'Oxygen' ;
@@ -142,12 +142,12 @@ div.monthview > div.row {
 }
 
 div.day {
-	-webkit-flex:1;
-	-ms-flex:1;
-	flex:1;
-	border:1px solid #ccc;
-	overflow:hidden;
-	height:100%;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	border: 1px solid #ccc;
+	/*overflow: hidden;*/
+	height: 100%;
 }
 
 div.day.today {
@@ -212,15 +212,28 @@ div.day header {
 
 div.eventMonth {
 	position:relative;
-	border-radius: 2px;
+	border-radius: 3px;
 	padding: 2px 4px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size:0.8em;
-	margin: 0px 2px;
+	margin: 1px 2px;
 	color:white;
+	height: 15px;
 	/* border: 2px solid rgb(127,127,127); */
+}
+
+div.eventMonth.notStart {
+	margin-left: -1px;
+	border-bottom-left-radius: 0;
+	border-top-left-radius: 0;
+}
+
+div.eventMonth.notEnd {
+	margin-right: -1px;
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
 }
 
 div.event .time {

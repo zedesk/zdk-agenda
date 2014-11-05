@@ -123,13 +123,17 @@
 			for (var w = 0; w < 6; w++) {
 				week = "";
 				for (var d = 0; d < 7; d++) {
-					day = { date: fday.date(), data:fday.format("YYYY-MM-DD"), type: "" };
-					if(fday.year()==today.year() && fday.month()==today.month() && fday.date()==today.date()  ) {
+					day = { date: fday.date(), data: fday.format("YYYY-MM-DD"), type: "" };
+					if (fday.year() ==today.year() && fday.month()==today.month() && fday.date()==today.date()  ) {
 						day.type = "today";
 					}
-					if(fday.month()!=obj.day.month()) day.type += (day.type.length?" ":"")+"d1";
-					if([0,6].indexOf(fday.day()) !== -1) day.type += (day.type.length?" ":"")+"we";
-					week += '<div class="day '+day.type+'" data-date="'+day.data+'">';
+					if (fday.month() != obj.day.month()) {
+						day.type += (day.type.length ? " " : "") + "d1";
+					}
+					if ([0,6].indexOf(fday.day()) !== -1) {
+						day.type += (day.type.length ? " " : "") + "we";
+					}
+					week += '<div class="day ' + day.type + '" data-date="' + day.data +'">';
 					week += '<header>'+day.date+'</header>';
 					week += '</div>';
 					/*
@@ -304,44 +308,161 @@
 				return doc;
 			},
 			drawEvents: function() {
-				console.info("drawEvents");
-				console.log(document);
-				if( !this.querySelectorAll("zdk-event").length ) return;
+				if (!this.querySelectorAll("zdk-event").length) return;
 
 				var doc = this.orderEvents();
 
 				var that = this;
-				if(this.view === "month") {
-					if( !this.$.agenda.querySelectorAll(".monthview .day").length ) {
+				if (this.view === "month") {
+					if (!this.$.agenda.querySelectorAll(".monthview .day").length) {
 						setTimeout( function() { that.drawEvents() }, 0);
 						return;
 					}
+
+					// We remove the drawn events
 					[].slice.call(this.$.agenda.querySelectorAll(".monthview .eventMonth")).forEach( function(event) {
 						event.parentNode.removeChild(event);
 					});
+
+					var events = {};
 					[].slice.call(this.$.agenda.querySelectorAll(".monthview .day")).forEach( function(day) {
-						var events = doc.querySelectorAll("zdk-event[date='"+day.getAttribute("data-date")+"']");
-						if( events.length ) {
-							[].slice.call(events).forEach( function ( event ) {
-								var div = document.createElement("div");
+						var eventElements = doc.querySelectorAll('zdk-event[date=\'' + day.getAttribute("data-date") + '\']');
+
+						if (eventElements.length) {
+							var index = 0;
+							[].slice.call(eventElements).forEach(function(eventElement) {
+
+								var date = moment(eventElement.getAttribute('date'), 'YYYY-MM-DD');
+								var time = moment(eventElement.getAttribute('time'), 'HH:mm');
+								var duration = moment(eventElement.getAttribute('duration'), 'HH:mm');
+
+								var endDate = moment(date);
+
+								if (eventElement.getAttribute('end')) {
+									var end = moment(eventElement.getAttribute('end'), 'YYYY-MM-DD HH:mm');
+
+									if (!end.isBefore(date)) {
+										endDate = end;
+									}
+								}
+
+								var event = {
+									date: eventElement.getAttribute('date'),
+									time: eventElement.getAttribute('time'),
+									end: eventElement.getAttribute('end'),
+									label: eventElement.getAttribute('label'),
+									index: index,
+									dataNum: eventElement.getAttribute('data-num'),
+									className: eventElement.className
+								};
+
+								function clone(obj) {
+									if (obj == null || typeof(obj) != 'object')
+										return obj;
+
+									var temp = obj.constructor(); // changed
+
+									for (var key in obj) {
+										if(obj.hasOwnProperty(key)) {
+												temp[key] = clone(obj[key]);
+										}
+									}
+									return temp;
+								}
+
+								var i = moment(date);
+								var isStart = true;
+								var eventToInsert = null;
+
+								do {
+									if (typeof events[i.format('YYYY-MM-DD')] === 'undefined') {
+										events[i.format('YYYY-MM-DD')] = [];
+									}
+									eventToInsert = clone(event);
+									eventToInsert.isStart = isStart;
+									events[i.format('YYYY-MM-DD')].splice(index, 0, eventToInsert);
+
+									i.add(1, 'days');
+									isStart = false;
+								}
+								while (i.isBefore(endDate));
+
+								if (eventToInsert) {
+									eventToInsert.isEnd = true;
+								}
+
+								index++;
+							});
+						}
+					});
+
+					// We draw the events
+					[].slice.call(this.$.agenda.querySelectorAll(".monthview .day")).forEach( function(day) {
+						var dayEvents = events[day.getAttribute("data-date")];
+
+						if (dayEvents && dayEvents.length) {
+							dayEvents.sort(function(a, b) {
+								return a.index > b.index;
+							});
+
+							var index = 0;
+							[].slice.call(dayEvents).forEach( function ( event ) {
+
+								while (event.index > index) {
+									var div = document.createElement('div');
+									div.classList.add('eventMonth');
+									day.appendChild(div);
+									index++;
+								}
+
+								index++;
+
+								var div = document.createElement('div');
 								div.className = event.className;
-								div.classList.add("eventMonth");
-								if( event.id ) div.id = event.id;
-								div.setAttribute("data-num",event.getAttribute("data-num"));
-								if(event.classList.contains("ro")) div.setAttribute("data-ro",true);
-								div.innerHTML = '<span class="time">'+event.getAttribute("time")+'</span> <span class="title">'+event.getAttribute("label")+'</span>';
+								div.classList.add('eventMonth');
+
+								var date = moment(day.getAttribute("data-date"), 'YYYY-MM-DD');
+								var eventDate = moment(event.date, 'YYYY-MM-DD');
+								var time = moment(event.time, 'HH:mm');
+								var duration = moment(event.duration, 'HH:mm');
+
+								if (event.id) {
+									div.id = event.id;
+								}
+
+								div.setAttribute('data-num', event.dataNum);
+
+								div.innerHTML = '';
+								if (event.isStart) {
+									div.innerHTML += '<span class="time">' + event.time + '</span> ';
+								}
+								else {
+									div.classList.add('notStart');
+								}
+
+								if (event.isStart || date.day() === 1) {
+									div.innerHTML += '<span class="title">' + event.label + '</span>';
+								}
+
+								if (!event.isEnd) {
+									div.classList.add('notEnd');
+								}
+								/*if (event.classList.contains('ro')) {
+									div.setAttribute('data-ro', true);
+								}*/
 								day.appendChild(div);
-								div.addEventListener("click", function() {
-									if(!event.classList.contains("ro")) {
-										that.fire("zdk-event-click",{ event:event });
+								div.addEventListener('click', function() {
+									if (!event.classList.contains('ro')) {
+										that.fire('zdk-event-click', {event: event});
 									}
 								}, false);
 							});
 						}
 					});
-				} else {
+				}
+				else {
 					// be sure that I'mon the right view
-					if( !this.$.agenda.querySelectorAll(".view .dayview").length ) {
+					if (!this.$.agenda.querySelectorAll('.view .dayview').length) {
 						setTimeout( function() { that.drawEvents() }, 0);
 						return;
 					}
