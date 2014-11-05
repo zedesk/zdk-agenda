@@ -155,7 +155,15 @@ div.day {
 	height: 100%;
 }
 
-div.monthview > div.row> div.day {
+div.monthview .day-link {
+	cursor: pointer;
+}
+
+div.monthview .day-link:hover {
+	text-decoration: underline;
+}
+
+div.monthview > div.row > div.day {
 	border-left: 1px solid #ccc;
 }
 
