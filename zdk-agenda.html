@@ -247,19 +247,19 @@
 					var i,
 						ctx = canvas.getContext("2d");
 
-					ctx.lineWidth=1;
-					ctx.strokeStyle="#eeeeee";
-					for( i=0;i<24;i++) {
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = "#eeeeee";
+					for (i = 0; i < 24; i++) {
 						ctx.beginPath();
-							ctx.moveTo(0,(i + 0.5) * obj.hourHeight);
+							ctx.moveTo(0, (i + 0.5) * obj.hourHeight + 0.5);
 							ctx.lineTo(canvas.width, (i + 0.5) * obj.hourHeight);
 						ctx.stroke();
 					}
-					ctx.strokeStyle="#999999";
-					for( i=0;i<24;i++) {
+					ctx.strokeStyle = "#ccc";
+					for (i = 0; i < 24; i++) {
 						ctx.beginPath();
-							ctx.moveTo(0,(i+1) * obj.hourHeight);
-							ctx.lineTo(canvas.width,(i+1)* obj.hourHeight);
+							ctx.moveTo(0, (i + 1) * obj.hourHeight + 0.5);
+							ctx.lineTo(canvas.width, (i + 1)* obj.hourHeight);
 						ctx.stroke();
 					}
 				}
