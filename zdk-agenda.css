@@ -165,18 +165,18 @@ div.day header {
 	padding-left: 5px;
 }
 
-.event1  { background: #b34c4c; }
-.event2  { background: #b3754c; }
-.event3  { background: #b38a4c; }
-.event4  { background: #b39e4c; }
-.event5  { background: #b3b34c; }
-.event6  { background: #7db851; }
-.event7  { background: #4eb17d; }
-.event8  { background: #43889e; }
-.event9  { background: #43699e; }
-.event10 { background: #52439e; }
-.event11 { background: #805790; }
-.event12 { background: #a4457c; }
+.event1  { background: #6699ff; }
+.event2  { background: #527acc; }
+.event3  { background: #9999ff; }
+.event4  { background: #33ccff; }
+.event5  { background: #66ffcc; }
+.event6  { background: #33cc33; }
+.event7  { background: #ffff82; }
+.event8  { background: #ffbd7d; }
+.event9  { background: #ff7575; }
+.event10 { background: #fa5858; }
+.event11 { background: #e494c9; }
+.event12 { background: #e2e2e2; }
 
 .ro.event1  { background: #cca3a3 }
 .ro.event2  { background: #ccb3a3 }
