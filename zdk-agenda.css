@@ -21,6 +21,24 @@ div#buttonBar {
 	margin-right:5px;
 }
 
+@media (max-width: 700px) {
+	:host div#buttonBar {
+		display: none!important;
+	}
+	:host #today {
+		display: none!important;
+	}
+}
+
+@media (min-width: 700px) {
+	:host #view_menu {
+		display: none!important;
+	}
+	:host #today_icon_button {
+		display: none!important;
+	}
+}
+
 div#buttonBar paper-button.selected {
 	background: darkgray;
 	color:white;

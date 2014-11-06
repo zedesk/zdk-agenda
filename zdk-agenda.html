@@ -2,8 +2,11 @@
 <link rel="import" href="../core-header-panel/core-header-panel.html">
 <link rel="import" href="../core-toolbar/core-toolbar.html">
 <link rel="import" href="../core-icons/core-icons.html">
+<link rel="import" href="../core-item/core-item.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../scroll/my-scrollbar.html">
 <link rel="import" href="./zdk-event.html">
 
@@ -16,14 +19,21 @@
 			<core-toolbar id="banner">
 				<paper-icon-button icon="arrow-back" id="previous" on-tap="{{previous}}"></paper-icon-button>
 				<paper-button id="today" on-tap="{{today}}">Today</paper-button>
+				<paper-icon-button id="today_icon_button" icon="today" on-tap="{{today}}">Today</paper-icon-button>
 				<paper-icon-button icon="arrow-forward" id="next" on-tap="{{next}}"></paper-icon-button>
 
 				<div class="date" flex></div>
 
+				<paper-menu-button id="view_menu" icon="more-vert">
+					<paper-item class="view-button day-button" on-tap="{{changeView}}" data-view="day">Jour</paper-item>
+					<paper-item class="view-button week-button selected" on-tap="{{changeView}}" data-view="week">Semaine</paper-item>
+					<paper-item class="view-button month-button" on-tap="{{changeView}}" data-view="month">Mois</paper-item>
+				</paper-menu-button>
+
 				<div id="buttonBar">
-					<paper-button id="day">Jour</paper-button>
-					<paper-button id="week" class="selected">Semaine</paper-button>
-					<paper-button id="month">Mois</paper-button>
+					<paper-button class="view-button day-button" on-tap="{{changeView}}" data-view="day">Jour</paper-button>
+					<paper-button class="view-button week-button selected" on-tap="{{changeView}}" data-view="week">Semaine</paper-button>
+					<paper-button class="view-button month-button" on-tap="{{changeView}}" data-view="month">Mois</paper-button>
 					<!--<paper-button id="planning">Planning</paper-button>-->
 				</div>
 			</core-toolbar>
@@ -176,25 +186,22 @@
 					this.$.agenda.querySelector(".monthview").style.display = "none";
 					this.setTime(this.hourShow);
 				}
+				this.$.view_menu.querySelector(".selected").classList.remove("selected");
+				this.$.view_menu.querySelector("." + this.view + '-button').classList.add("selected");
+
 				this.$.buttonBar.querySelector(".selected").classList.remove("selected");
-				this.$.buttonBar.querySelector("#" + this.view).classList.add("selected");
+				this.$.buttonBar.querySelector("." + this.view + '-button').classList.add("selected");
 				this.draw();
 			},
 
 			ready: function() {
 				console.info("ready");
-				this.i18n = this.i18n?this.i18n:navigator.language || navigator.userLanguage;
+				this.i18n = this.i18n ? this.i18n: navigator.language || navigator.userLanguage;
 				moment.locale( this.i18n );
 				this.day = (typeof this.date === "string")?moment(this.date):moment();
 
 				var that = this;
 
-				this.$.buttonBar.addEventListener("click", function(evt) {
-					if ( evt.target === that.$.buttonBar.querySelector(".selected") ) return;
-					that.$.buttonBar.querySelector(".selected").classList.remove("selected");
-					evt.target.classList.add("selected");
-					that.view = evt.target.id;
-				}, true);
 				window.addEventListener("resize", function() { that.draw(); },false);
 				this.drawBG();
 
@@ -236,7 +243,6 @@
 						this.events.push(event);
 					}.bind(this));
 				}
-				console.log(this.events);
 
 				this.drawEvents();
 			},
@@ -444,8 +450,6 @@
 								return a.index - b.index;
 							});
 
-							console.log(dayEvents);
-
 							var index = 0;
 							[].slice.call(dayEvents).forEach( function ( event ) {
 
@@ -603,6 +607,15 @@
 				this.day = moment(event.target.parentNode.parentNode.getAttribute('data-date'), 'YYYY-MM-DD');
 				this.view = 'day';
 				this.draw();
+			},
+
+			changeView: function(evt) {
+				if (!evt.target || evt.target.classList.contains('selected')) {
+					return;
+				}
+
+				var view = evt.target.dataset.view;
+				this.view = view;
 			},
 
 			addEvent: function(obj) {
