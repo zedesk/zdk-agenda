@@ -4,18 +4,18 @@
 	<template>
 		<style>
 			:host {
-				position:absolute;
+				position: absolute;
 				border-radius: 5px;
 				overflow: hidden;
 				text-overflow: ellipsis;
-				font-size:0.8em;
+				font-size: 0.8em;
 				margin: 0px 2px;
-				right:0px;
-				left:0px;
-				box-sizing:border-box;
-				border:1px solid white;
-				display:none;
-				color:white;
+				right: 0px;
+				left: 0px;
+				box-sizing: border-box;
+				border: 1px solid white;
+				display: none;
+				color: white;
 			}
 			div#event {
 				/* border: 2px solid rgba(127,127,127,0.3); */
@@ -35,31 +35,19 @@
 	</template>
 	<script>
 	Polymer('zdk-event', {
+		start: null,
 		time: null,
-		duration: null,
+		end: null,
 		label: null,
-		date: null,
-		getStamp: function() {
-			var duration = moment(this.duration, "HH:mm");
-			duration = moment.duration({'hours': duration.hours(), 'minutes': duration.minutes()});
-			return {
-				start: moment(this.date + "T" + this.time).valueOf(),
-				end: moment(this.date + "T" + this.time).add(duration).valueOf()
-			};
-		},
-		timeChanged: function(oldValue, newValue) {
+		startChanged: function(oldValue, newValue) {
 			if ( !oldValue || oldValue === newValue ) return;
-			this.setAttribute("time", newValue);
+			this.setAttribute("start", newValue);
+			this.time = moment(newValue, 'YYYY-MM-DD HH:mm').format('HH:mm');
 			this.fire('zdk-event-changed');
 		},
 		endChanged: function(oldValue, newValue) {
 			if ( !oldValue || oldValue === newValue ) return;
 			this.setAttribute("end", newValue);
-			this.fire('zdk-event-changed');
-		},
-		dateChanged: function(oldValue, newValue) {
-			if ( !oldValue || oldValue === newValue ) return;
-			this.setAttribute("date", newValue);
 			this.fire('zdk-event-changed');
 		},
 		labelChanged: function(oldValue, newValue) {
@@ -68,13 +56,7 @@
 			this.fire('zdk-event-changed');
 		},
 		eventClick: function(event, detail, sender) {
-			if( this.classList.contains("ro")) {
-				return;
-			}
-			else {
-				//console.warn(this);
-				this.fire('zdk-event-click',{event: this});
-			}
+			this.fire('zdk-event-click',{event: this});
 		}
 	});
 	</script>
