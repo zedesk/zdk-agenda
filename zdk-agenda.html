@@ -441,13 +441,15 @@
 
 						if (dayEvents && dayEvents.length) {
 							dayEvents.sort(function(a, b) {
-								return a.index > b.index;
+								return a.index - b.index;
 							});
+
+							console.log(dayEvents);
 
 							var index = 0;
 							[].slice.call(dayEvents).forEach( function ( event ) {
 
-								while (event.index > index) {
+								while (parseInt(event.index) > index) {
 									var div = document.createElement('div');
 									div.classList.add('eventMonth');
 									day.appendChild(div);
@@ -605,6 +607,7 @@
 
 			addEvent: function(obj) {
 				this.events.push(obj);
+				this.drawEvents();
 			},
 
 			childrenUpdated: function(observer, mutations) {
