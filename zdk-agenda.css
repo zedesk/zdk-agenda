@@ -47,15 +47,18 @@ div.weekday {
 	padding: 5px 5px;
 	text-align: center;
 }
+
 div.weekday:first-child {
 	border: none;
 }
+
 span.day {
 	display: inline-block;
 	flex: 1;
 	-webkit-flex: 1;
 	-ms-flex: 1;
 }
+
 span.date {
 	font-size: 2em;
 }
@@ -199,38 +202,6 @@ div.day header {
 .event11 { background: #e494c9; }
 .event12 { background: #e2e2e2; }
 
-.ro.event1  { background: #cca3a3 }
-.ro.event2  { background: #ccb3a3 }
-.ro.event3  { background: #baaa93 }
-.ro.event4  { background: #b0a475 }
-.ro.event5  { background: #b2b274 }
-.ro.event6  { background: #c2dead }
-.ro.event7  { background: #a8d9bf }
-.ro.event8  { background: #a6c7d1 }
-.ro.event9  { background: #a6b8d1 }
-.ro.event10 { background: #ada6d1 }
-.ro.event11 { background: #c3b0cb }
-.ro.event12 { background: #d4a7c1 }
-
-/*
-.event2 {
-	background: #4eb17d;
-	color:white;
-}
-.event3 {
-	background: #66a1bb;
-	color:white;
-}
-.event4 {
-	background: #ca8f6a;
-	color:white;
-}
-.event5 {
-	background: #856990;
-	color:white;
-}
-*/
-
 div.eventMonth {
 	position:relative;
 	border-radius: 3px;
@@ -242,6 +213,7 @@ div.eventMonth {
 	margin: 1px 2px;
 	color:white;
 	height: 15px;
+	cursor: pointer;
 	/* border: 2px solid rgb(127,127,127); */
 }
 
@@ -263,11 +235,6 @@ div.event .time {
 
 div.event .title {
 	font-weight: 300;
-}
-
-#evt1 {
-	top:450px; /* 9h */
-	height: 100px;
 }
 
 #scroll2 .scrollBar { left:5px; }

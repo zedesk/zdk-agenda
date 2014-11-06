@@ -18,7 +18,7 @@
 				<paper-button id="today" on-tap="{{today}}">Today</paper-button>
 				<paper-icon-button icon="arrow-forward" id="next" on-tap="{{next}}"></paper-icon-button>
 
-				<div class="date" flex>du 04 Aout au 10 Aout</div>
+				<div class="date" flex></div>
 
 				<div id="buttonBar">
 					<paper-button id="day">Jour</paper-button>
@@ -140,9 +140,6 @@
 					week += '<div class="day ' + day.type + '" data-date="' + day.data +'">';
 					week += '<header><span class="day-link">' + day.date + '<span></header>';
 					week += '</div>';
-					/*
-					div.addEventListener("click",function(){ that.dateClick(this.getAttribute("data-date")) },false);
-					*/
 					fday.add('d',1);
 				}
 				content += '<div class="row">'+week+'</div>';
@@ -313,9 +310,7 @@
 				return doc;
 			},
 			drawEvents: function() {
-				console.log('drawEvents');
 				if (!this.querySelectorAll('zdk-event').length) return;
-				console.log('drawEvents2');
 
 				var doc = this.orderEvents();
 
@@ -358,7 +353,6 @@
 									var i = 0;
 									while (i < array.length && !exists) {
 										exists = (array[i].index === index);
-										console.log(array[i].index);
 										i++;
 									}
 									return exists;
@@ -420,8 +414,6 @@
 						}
 					});
 
-					console.log(events);
-
 					// We draw the events
 					[].slice.call(this.$.agenda.querySelectorAll(".monthview .day")).forEach( function(day) {
 						var dayEvents = events[day.getAttribute("data-date")];
@@ -478,9 +470,7 @@
 								}*/
 								day.appendChild(div);
 								div.addEventListener('click', function() {
-									if (!event.classList.contains('ro')) {
-										that.fire('zdk-event-click', {event: event});
-									}
+									that.fire('zdk-event-click', {event: event});
 								}, false);
 							});
 						}
@@ -498,7 +488,6 @@
 					[].slice.call(this.$.agenda.querySelectorAll(".view .dayview")).forEach( function(day) {
 						var events = doc.querySelectorAll("zdk-event[date='"+day.getAttribute("data-date")+"']");
 						if( events.length ) {
-							// console.log( day.getAttribute("data-date") , events.length );
 							[].slice.call(events).forEach( function ( event, indx ) {
 								var nb = 0;
 								var node = event;
@@ -526,7 +515,6 @@
 				//view.scrollTo(hour * this.hourHeight);
 			},
 			previous: function() {
-				console.log('previous');
 				switch( this.view ) {
 					case "month":
 						this.day.subtract(1,'M');

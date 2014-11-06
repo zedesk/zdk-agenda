@@ -34,5 +34,29 @@
 		<zdk-event class="event10" date="2014-11-14" time="15:00" duration="01:00" label="Event 3"></zdk-event>
 	</zdk-agenda>
 
+	<!--<button onclick="addEvent()">Add Event</button>-->
+
+	<script>
+		/*function addEvent() {
+			var event = document.createElement("zdk-event");
+			event.setAttribute("date","2014-11-12");
+			event.setAttribute("time","18:00");
+			event.setAttribute("duration","02:30");
+			event.setAttribute("label","Apero");
+			event.classList.add("event5");
+			agenda = document.querySelector("zdk-agenda");
+			agenda.appendChild(event);
+			event = agenda.addEvent({ date:"2014-08-07",time:"18:00",duration:"02:30",label:"Apero"});
+			event.classList.add("event5");
+			agenda.drawEvents();
+		}*/
+		window.addEventListener("polymer-ready", function() {
+			document.querySelector("zdk-agenda").addEventListener("zdk-event-click", function(evt) {
+				var event = evt.detail.event;
+				console.log(event);
+			}, false);
+		},false);
+	</script>
+
 </body>
 </html>
