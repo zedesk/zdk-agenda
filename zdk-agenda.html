@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../core-header-panel/core-header-panel.html">
 <link rel="import" href="../core-toolbar/core-toolbar.html">
 <link rel="import" href="../core-icons/core-icons.html">
 <link rel="import" href="../core-item/core-item.html">
@@ -15,7 +14,7 @@
 <polymer-element name="zdk-agenda" attributes="date i18n view hourHeight hourShow">
 	<template>
 		<link rel="stylesheet" href="zdk-agenda.css">
-		<core-header-panel id="agenda">
+		<div vertical layout id="agenda">
 			<core-toolbar id="banner">
 				<paper-icon-button icon="arrow-back" id="previous" on-tap="{{previous}}"></paper-icon-button>
 				<paper-button id="today" on-tap="{{today}}">Today</paper-button>
@@ -54,7 +53,7 @@
 				<div class="monthview" style="height:600px">
 				</div>
 			</div>
-		</core-header-panel>
+		</div>
 
 		<div id="events" style="display: none">
 			<content></content>

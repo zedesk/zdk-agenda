@@ -1,9 +1,10 @@
 :host {
 	font-family: 'Oxygen', Verdana, Arial;
 	font-size: 14px;
-	overflow: hidden;
 	min-width: 500px;
 	min-height: 500px;
+	display: block;
+	position: relative;
 }
 
 #agenda {
@@ -53,6 +54,10 @@ div#weekdays {
 	background: #eee;
 }
 
+div#weekdays .hours {
+	border-right: solid 1px #ccc;
+}
+
 div.weekday {
 	flex:1;
 	-webkit-flex: 1;
@@ -66,8 +71,8 @@ div.weekday {
 	text-align: center;
 }
 
-div.weekday:first-child {
-	border: none;
+div.weekday:nth-child(3) {
+	border-left: none;
 }
 
 span.day {
@@ -188,8 +193,8 @@ div.monthview > div.row > div.day {
 	border-left: 1px solid #ccc;
 }
 
-div.monthview > div.row> div.day:first-child {
-	border-left: 1px solid #ccc;
+div.monthview > div.row > div.day:first-child {
+	border-left: none;
 }
 
 div.day.today {
