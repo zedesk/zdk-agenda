@@ -335,9 +335,9 @@
 			},
 
 			drawEvents: function() {
-				if (this.events.length === 0) return;
-
-				this.orderEvents();
+				if (this.events.length > 0) {
+					this.orderEvents();
+				}
 
 				var that = this;
 				if (this.view === "month") {
