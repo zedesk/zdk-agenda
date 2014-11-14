@@ -208,11 +208,11 @@
 					var event = evt.target;
 
 					if (event.start) {
-						var start = moment(event.start, "YYYY-MM-DD HH:mm");
+						var start = moment(event.start, moment.ISO_8601);
 						event.style.top = ( ( start.hours() + start.minutes() / 60 ) * that.hourHeight ) + "px";
 
 						if (event.end) {
-							var end = moment(event.end, "YYYY-MM-DD HH:mm");
+							var end = moment(event.end, moment.ISO_8601);
 
 							if (end.isAfter(start)) {
 								duration = end.substract(start);
@@ -233,8 +233,8 @@
 					[].slice.call(eventElements).forEach(function(eventElement) {
 
 						event = {
-							start: eventElement.getAttribute('start'),
-							end: eventElement.getAttribute('end'),
+							start: moment(eventElement.getAttribute('start'), 'YYYY-MM-DD HH:mm').toISOString(),
+							end: moment(eventElement.getAttribute('end'), 'YYYY-MM-DD HH:mm').toISOString(),
 							label: eventElement.getAttribute('label'),
 							dataNum: eventElement.getAttribute('data-num'),
 							className: eventElement.className
@@ -328,8 +328,8 @@
 				console.info("orderEvents");
 				// orders the event by date and time
 				this.events.sort( function(a, b) {
-					var timeA = moment(a.start, 'YYYY-MM-DD HH:mm').valueOf();
-					var timeB = moment(b.start, 'YYYY-MM-DD HH:mm').valueOf();
+					var timeA = moment(a.start, moment.ISO_8601).valueOf();
+					var timeB = moment(b.start, moment.ISO_8601).valueOf();
 					return timeA - timeB;
 				});
 			},
@@ -358,7 +358,7 @@
 						var dayDate = moment(day.getAttribute("data-date"));
 
 						for (var i = 0; i < this.events.length; i++) {
-							var date = moment(this.events[i].start, 'YYYY-MM-DD HH:mm');
+							var date = moment(this.events[i].start, moment.ISO_8601);
 
 							if (date.isSame(dayDate, 'day')) {
 								dayEvents.push(this.events[i]);
@@ -372,11 +372,11 @@
 							var index = 0;
 							dayEvents.forEach(function(event) {
 
-								var date = moment(event.start, 'YYYY-MM-DD HH:mm');
+								var date = moment(event.start, moment.ISO_8601);
 								var endDate = date;
 
 								if (event.end) {
-									var end = moment(event.end, 'YYYY-MM-DD HH:mm');
+									var end = moment(event.end, moment.ISO_8601);
 
 									if (!end.isBefore(date)) {
 										endDate = end;
@@ -466,8 +466,8 @@
 								div.classList.add('eventMonth');
 
 								var date = moment(day.getAttribute("data-date"), 'YYYY-MM-DD');
-								var eventDate = moment(event.start, 'YYYY-MM-DD HH:mm');
-								var time = moment(event.start, 'YYYY-MM-DD HH:mm').format('HH:mm');
+								var eventDate = moment(event.start, moment.ISO_8601);
+								var time = moment(event.start, moment.ISO_8601).format('HH:mm');
 								var duration = moment(event.duration, 'HH:mm');
 
 								if (event.id) {
@@ -516,7 +516,7 @@
 						var dayDate = moment(day.getAttribute("data-date"));
 
 						for (var i = 0; i < this.events.length; i++) {
-							var date = moment(this.events[i].start, 'YYYY-MM-DD HH:mm');
+							var date = moment(this.events[i].start, moment.ISO_8601);
 
 							if (date.isSame(dayDate, 'day')) {
 								dayEvents.push(this.events[i]);
@@ -537,7 +537,7 @@
 								eventElement.className = event.className;
 
 								var prev = dayEvents[indx - 1];
-								while (prev && moment(eventElement.start, 'YYYY-MM-DD HH:mm').valueOf() < moment(prev.end, 'YYYY-MM-DD HH:mm').valueOf()) {
+								while (prev && moment(eventElement.start, moment.ISO_8601).valueOf() < moment(prev.end, moment.ISO_8601).valueOf()) {
 									nb++;
 									node = prev;
 									prev = events[indx - 1 - nb];
@@ -621,29 +621,6 @@
 				this.events.push(obj);
 				this.drawEvents();
 			},
-
-			childrenUpdated: function(observer, mutations) {
-				this.events = [];
-
-				var eventElements = this.$.events.querySelectorAll('zdk-event');
-
-				if (eventElements.length > 0) {
-					var event = {};
-					[].slice.call(eventElements).forEach(function(eventElement) {
-
-						event = {
-							start: eventElement.getAttribute('start'),
-							end: eventElement.getAttribute('end'),
-							label: eventElement.getAttribute('label'),
-							dataNum: eventElement.getAttribute('data-num'),
-							className: eventElement.className
-						};
-					});
-					this.events.push(event);
-				}
-
-				this.drawEvents();
-			}
 		});
 	// })();
 	</script>

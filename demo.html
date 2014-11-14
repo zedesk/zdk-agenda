@@ -8,48 +8,37 @@
 	<link rel="import" href="zdk-agenda.html">
 	<link rel="import" href="zdk-event.html">
 
-	<style>
-		html, body {
-			height: 100%;
-			margin: 0;
-		}
-	</style>
-
 </head>
 
 <body unresolved>
 
-	<zdk-agenda i18n="en-gb" hourHeight="40" hourShow="8" view="week">
-		<zdk-event class="event4" start="2014-11-12 09:00" duration="01:00" label="Event 2">Description of the event</zdk-event>
+	<zdk-agenda i18n="en-gb" hourHeight="40" hourShow="8" view="month">
+		<zdk-event class="event4" start="2014-11-12 09:00:00" duration="01:00" label="Event 2"></zdk-event>
 		<zdk-event class="event6" start="2014-11-12 10:30" label="Shopping Delivery"></zdk-event>
 		<zdk-event class="event8" start="2014-11-14 09:30" label="Stand Up"></zdk-event>
 		<zdk-event class="event1" start="2014-11-11 14:00" label="Event 1 suite"></zdk-event>
 		<zdk-event class="event1" start="2014-11-11 09:00" label="Event 1"></zdk-event>
-		<zdk-event class="ro event8" start="2014-11-13 14:00" label="Event 2"></zdk-event>
+		<zdk-event class="event8" start="2014-11-13 14:00" label="Event 2"></zdk-event>
 		<zdk-event class="event6" start="2014-11-13 14:00" label="Event 1"></zdk-event>
 		<zdk-event class="event10" start="2014-11-13 15:00" label="Event 3"></zdk-event>
 		<zdk-event class="event10" start="2014-11-13 17:00" end="2014-11-17 20:00" label="Event 3"></zdk-event>
-		<zdk-event class="ro event8" start="2014-11-14 14:00" label="Event 2"></zdk-event>
+		<zdk-event class="event8" start="2014-11-14 14:00" label="Event 2"></zdk-event>
 		<zdk-event class="event6" start="2014-11-14 14:00" label="Event 1"></zdk-event>
 		<zdk-event class="event10" start="2014-11-14 15:00" label="Event 3"></zdk-event>
 	</zdk-agenda>
 
-	<!--<button onclick="addEvent()">Add Event</button>-->
+	<button onclick="addEvent()">Add Event</button>
 
 	<script>
-		/*function addEvent() {
-			var event = document.createElement("zdk-event");
-			event.setAttribute("date","2014-11-12");
-			event.setAttribute("time","18:00");
-			event.setAttribute("duration","02:30");
-			event.setAttribute("label","Apero");
-			event.classList.add("event5");
+		function addEvent() {
 			agenda = document.querySelector("zdk-agenda");
-			agenda.appendChild(event);
-			event = agenda.addEvent({ date:"2014-08-07",time:"18:00",duration:"02:30",label:"Apero"});
-			event.classList.add("event5");
-			agenda.drawEvents();
-		}*/
+			agenda.addEvent({
+				start: '2014-11-12T18:00:00',
+				end: '2014-11-12T20:30:00',
+				label: 'Apéro',
+				className: 'event5'
+			});
+		}
 		window.addEventListener("polymer-ready", function() {
 			document.querySelector("zdk-agenda").addEventListener("zdk-event-click", function(evt) {
 				var event = evt.detail.event;
