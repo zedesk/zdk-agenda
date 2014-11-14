@@ -617,9 +617,12 @@
 				this.view = view;
 			},
 
+			eventsChanged: function() {
+				this.drawEvents();
+			},
+
 			addEvent: function(obj) {
 				this.events.push(obj);
-				this.drawEvents();
 			},
 		});
 	// })();
