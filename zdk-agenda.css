@@ -252,6 +252,25 @@ div.eventMonth.notEnd {
 	border-top-right-radius: 0;
 }
 
+paper-dropdown div.eventMonth.notStart {
+	margin-left: 0;
+}
+
+div.eventMonth.notEnd {
+	margin-right: -1px;
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+}
+
+paper-dropdown div.eventMonth.notEnd {
+	margin-right: 0;
+}
+
+div.eventMonth > a.plusLink {
+	color: #507ad2;
+	text-decoration: underline;
+}
+
 div.event .time {
 	font-weight: 700;
 }

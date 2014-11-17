@@ -6,6 +6,7 @@
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-dropdown/paper-dropdown.html">
 <link rel="import" href="../scroll/my-scrollbar.html">
 <link rel="import" href="./zdk-event.html">
 
@@ -347,8 +348,11 @@
 					}
 
 					// We remove the drawn events
-					[].slice.call(this.$.agenda.querySelectorAll(".monthview .eventMonth")).forEach( function(event) {
-						event.parentNode.removeChild(event);
+					[].slice.call(this.$.agenda.querySelectorAll(".monthview .eventMonth")).forEach( function(element) {
+						element.parentNode.removeChild(element);
+					});
+					[].slice.call(this.$.agenda.querySelectorAll(".day paper-dropdown")).forEach( function(element) {
+						element.parentNode.removeChild(element);
 					});
 
 					var events = {};
@@ -450,17 +454,9 @@
 							});
 
 							var index = 0;
-							[].slice.call(dayEvents).forEach( function ( event ) {
+							var maxEvents = 3;
 
-								while (parseInt(event.index) > index) {
-									var div = document.createElement('div');
-									div.classList.add('eventMonth');
-									day.appendChild(div);
-									index++;
-								}
-
-								index++;
-
+							function displayEvent(event) {
 								var div = document.createElement('div');
 								div.className = event.className;
 								div.classList.add('eventMonth');
@@ -492,13 +488,55 @@
 									div.classList.add('notEnd');
 								}
 
-								day.appendChild(div);
 								div.addEventListener('click', function() {
 									that.fire('zdk-event-click', {event: event});
 								}, false);
-							});
+
+								return div;
+							}
+							dayEvents.forEach( function(event) {
+
+								while (parseInt(event.index) > index) {
+									var div = document.createElement('div');
+									div.classList.add('eventMonth');
+									day.appendChild(div);
+									index++;
+								}
+
+								if (index < maxEvents) {
+									day.appendChild(displayEvent(event));
+								}
+
+								index++;
+							}.bind(this));
+
+							if (dayEvents.length > maxEvents) {
+								var div = document.createElement('div');
+								div.classList.add('eventMonth');
+								div.innerHTML = '<a class="plusLink">+' + (dayEvents.length - maxEvents) + '</a>';
+								div.dataset.date = day.getAttribute("data-date");
+								div.addEventListener('click', this.toggleDayDropdown.bind(this));
+								day.appendChild(div);
+
+								console.log('dropdown');
+								var dropdownElement = document.createElement('paper-dropdown');
+								//dropdownElement.setAttribute('layered', true);
+								index = 0;
+								dayEvents.forEach( function(event) {
+									while (parseInt(event.index) > index) {
+										var div = document.createElement('div');
+										div.classList.add('eventMonth');
+										dropdownElement.appendChild(div);
+										index++;
+									}
+
+									dropdownElement.appendChild(displayEvent(event));
+									index++;
+								});
+								day.appendChild(dropdownElement);
+							}
 						}
-					});
+					}.bind(this));
 				}
 				else {
 					// be sure that I'mon the right view
@@ -615,6 +653,17 @@
 
 				var view = evt.target.dataset.view;
 				this.view = view;
+			},
+
+			toggleDayDropdown: function(e) {
+				var day = e.currentTarget.dataset.date;
+
+				var dropdownElement = this.shadowRoot.querySelector('.day[data-date="' + day + '"] paper-dropdown');
+
+				if (dropdownElement) {
+					console.log(dropdownElement);
+					dropdownElement.toggle();
+				}
 			},
 
 			eventsChanged: function() {
