@@ -529,7 +529,6 @@
 								div.addEventListener('click', this.toggleDayDropdown.bind(this));
 								day.appendChild(div);
 
-								console.log('dropdown');
 								var dropdownElement = document.createElement('paper-dropdown');
 								//dropdownElement.setAttribute('layered', true);
 								index = 0;
@@ -672,7 +671,6 @@
 				var dropdownElement = this.shadowRoot.querySelector('.day[data-date="' + day + '"] paper-dropdown');
 
 				if (dropdownElement) {
-					console.log(dropdownElement);
 					dropdownElement.toggle();
 				}
 			},

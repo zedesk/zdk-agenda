@@ -252,6 +252,10 @@ div.eventMonth.notEnd {
 	border-top-right-radius: 0;
 }
 
+div.day paper-dropdown {
+	min-width: 100px;
+}
+
 paper-dropdown div.eventMonth.notStart {
 	margin-left: 0;
 }
