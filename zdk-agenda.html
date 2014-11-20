@@ -423,18 +423,20 @@
 								var i = moment(date);
 								var isStart = true;
 								var eventToInsert = null;
+								var eventIndex = index;
 
 								do {
 									if (typeof events[i.format('YYYY-MM-DD')] === 'undefined') {
 										events[i.format('YYYY-MM-DD')] = [];
 									}
 									eventToInsert = clone(event);
-									eventToInsert.index = index;
+									eventToInsert.index = eventIndex;
 									eventToInsert.isStart = isStart;
-									events[i.format('YYYY-MM-DD')].splice(index, 0, eventToInsert);
+									events[i.format('YYYY-MM-DD')].splice(eventIndex, 0, eventToInsert);
 
 									i.add(1, 'days');
 									isStart = false;
+									eventIndex = (i.day() === 1) ? 0 : eventIndex;
 								}
 								while (i.isBefore(endDate));
 
@@ -499,9 +501,10 @@
 
 								return div;
 							}
+							var hiddenEvents = 0;
 							dayEvents.forEach( function(event) {
 
-								while (parseInt(event.index) > index) {
+								while (parseInt(event.index) > index && index < maxEvents) {
 									var div = document.createElement('div');
 									div.classList.add('eventMonth');
 									day.appendChild(div);
@@ -511,14 +514,17 @@
 								if (index < maxEvents) {
 									day.appendChild(displayEvent(event));
 								}
+								else {
+									hiddenEvents++;
+								}
 
 								index++;
 							}.bind(this));
 
-							if (dayEvents.length > maxEvents) {
+							if (hiddenEvents > 0) {
 								var div = document.createElement('div');
 								div.classList.add('eventMonth');
-								div.innerHTML = '<a class="plusLink">+' + (dayEvents.length - maxEvents) + '</a>';
+								div.innerHTML = '<a class="plusLink">+' + hiddenEvents + '</a>';
 								div.dataset.date = day.getAttribute("data-date");
 								div.addEventListener('click', this.toggleDayDropdown.bind(this));
 								day.appendChild(div);
