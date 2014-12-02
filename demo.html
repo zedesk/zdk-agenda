@@ -8,6 +8,16 @@
 	<link rel="import" href="zdk-agenda.html">
 	<link rel="import" href="zdk-event.html">
 
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+
+		zdk-agenda {
+			height: 100%;
+		}
+	</style>
 </head>
 
 <body unresolved>
@@ -30,7 +40,7 @@
 		<zdk-event class="event10" start="2014-12-01 15:00" end="2014-12-02 15:00" label="Event 3"></zdk-event>
 	</zdk-agenda>
 
-	<button onclick="addEvent()">Add Event</button>
+	<!--<button onclick="addEvent()">Add Event</button>-->
 
 	<script>
 		function addEvent() {

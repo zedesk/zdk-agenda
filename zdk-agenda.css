@@ -1,10 +1,9 @@
 :host {
 	font-family: 'Oxygen', Verdana, Arial;
 	font-size: 14px;
-	min-width: 500px;
-	min-height: 500px;
 	display: block;
 	position: relative;
+	height: 100%;
 }
 
 #agenda {
@@ -18,8 +17,8 @@
 div#buttonBar {
 	display: -ms-flexbox;
 	display: -webkit-flex;
-	display:flex;
-	margin-right:5px;
+	display: flex;
+	margin-right: 5px;
 }
 
 @media (max-width: 700px) {
@@ -86,17 +85,11 @@ span.date {
 	font-size: 2em;
 }
 
-my-scrollarea {
+zdk-scrollarea {
 	-webkit-flex: 1;
 	-ms-flex:1;
 	flex:1;
 }
-
-my-scrollarea::shadow .scrollBar {
-	right:0px;
-}
-
-my-scrollarea .scrollBar { right:0px; }
 
 div.hours {
 	position:relative;
