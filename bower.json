@@ -26,7 +26,7 @@
 		"tests"
 	],
 	"dependencies": {
-		"momentjs": "2.8.1",
+		"momentjs": "~2.8.3",
 		"webcomponentsjs": "Polymer/webcomponentsjs#~0.5.1",
 		"polymer": "~0.5.1",
 		"core-elements": "Polymer/core-elements#~0.5.1",
