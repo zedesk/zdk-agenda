@@ -330,8 +330,107 @@
 				drawHours( this );
 			},
 
+			_computeEvents: function(dayNodeList) {
+				var events = {};
+				var d = 0;
+				[].slice.call(dayNodeList).forEach( function(day) {
+
+					var dayEvents = [];
+					var dayDate = moment(day.getAttribute("data-date"));
+
+					for (var i = 0; i < this.events.length; i++) {
+						var date = moment(this.events[i].start, moment.ISO_8601);
+						var dateEnd = moment(this.events[i].end, moment.ISO_8601);
+
+						if (date.isSame(dayDate, 'day') ||
+								(d === 0 && date.isBefore(dayDate, 'day') && dateEnd.isAfter(dayDate, 'day'))) {
+							dayEvents.push(this.events[i]);
+						}
+						else if (date.isAfter(dayDate, 'day')) {
+							break;
+						}
+					}
+
+					if (dayEvents.length > 0) {
+						var index = 0;
+						dayEvents.forEach(function(event) {
+
+							var date = moment(event.start, moment.ISO_8601);
+							var endDate = date;
+
+							if (event.end) {
+								var end = moment(event.end, moment.ISO_8601);
+
+								if (!end.isBefore(date)) {
+									endDate = end;
+								}
+							}
+
+							function indexExists(array, index) {
+								var exists = false;
+								var i = 0;
+								while (i < array.length && !exists) {
+									exists = (array[i].index === index);
+									i++;
+								}
+								return exists;
+							}
+
+							if (typeof events[dayDate.format('YYYY-MM-DD')] !== 'undefined') {
+								while (indexExists(events[dayDate.format('YYYY-MM-DD')], index)) {
+									index++;
+								}
+							}
+
+							function clone(obj) {
+								if (obj == null || typeof(obj) != 'object')
+									return obj;
+
+								var temp = obj.constructor(); // changed
+
+								for (var key in obj) {
+									if (obj.hasOwnProperty(key)) {
+											temp[key] = clone(obj[key]);
+									}
+								}
+								return temp;
+							}
+
+							var i = moment(date);
+							var isStart = true;
+							var eventToInsert = null;
+							var eventIndex = index;
+
+							do {
+								if (typeof events[i.format('YYYY-MM-DD')] === 'undefined') {
+									events[i.format('YYYY-MM-DD')] = [];
+								}
+								eventToInsert = clone(event);
+								eventToInsert.index = eventIndex;
+								eventToInsert.isStart = isStart;
+								events[i.format('YYYY-MM-DD')].splice(eventIndex, 0, eventToInsert);
+
+								i.add(1, 'days');
+								isStart = false;
+								eventIndex = (i.day() === 1) ? 0 : eventIndex;
+							}
+							while (moment(i.format('YYYY-MM-DD'), 'YYYY-MM-DD').isBefore(endDate));
+
+							if (eventToInsert) {
+								eventToInsert.isEnd = true;
+							}
+
+							index++;
+						});
+					}
+
+					d++;
+				}.bind(this));
+
+				return events;
+			},
+
 			orderEvents: function() {
-				console.info("orderEvents");
 				// orders the event by date and time
 				this.events.sort( function(a, b) {
 					var timeA = moment(a.start, moment.ISO_8601).valueOf();
@@ -360,101 +459,7 @@
 						element.parentNode.removeChild(element);
 					});
 
-					var events = {};
-					var d = 0;
-					[].slice.call(this.$.agenda.querySelectorAll(".monthview .day")).forEach( function(day) {
-
-						var dayEvents = [];
-						var dayDate = moment(day.getAttribute("data-date"));
-
-						for (var i = 0; i < this.events.length; i++) {
-							var date = moment(this.events[i].start, moment.ISO_8601);
-							var dateEnd = moment(this.events[i].end, moment.ISO_8601);
-
-							if (date.isSame(dayDate, 'day') ||
-									(d === 0 && date.isBefore(dayDate, 'day') && dateEnd.isAfter(dayDate, 'day'))) {
-								dayEvents.push(this.events[i]);
-							}
-							else if (date.isAfter(dayDate, 'day')) {
-								break;
-							}
-						}
-
-						if (dayEvents.length > 0) {
-							var index = 0;
-							dayEvents.forEach(function(event) {
-
-								var date = moment(event.start, moment.ISO_8601);
-								var endDate = date;
-
-								if (event.end) {
-									var end = moment(event.end, moment.ISO_8601);
-
-									if (!end.isBefore(date)) {
-										endDate = end;
-									}
-								}
-
-								function indexExists(array, index) {
-									var exists = false;
-									var i = 0;
-									while (i < array.length && !exists) {
-										exists = (array[i].index === index);
-										i++;
-									}
-									return exists;
-								}
-
-								if (typeof events[dayDate.format('YYYY-MM-DD')] !== 'undefined') {
-									while (indexExists(events[dayDate.format('YYYY-MM-DD')], index)) {
-										index++;
-									}
-								}
-
-								function clone(obj) {
-									if (obj == null || typeof(obj) != 'object')
-										return obj;
-
-									var temp = obj.constructor(); // changed
-
-									for (var key in obj) {
-										if (obj.hasOwnProperty(key)) {
-												temp[key] = clone(obj[key]);
-										}
-									}
-									return temp;
-								}
-
-								var i = moment(date);
-								var isStart = true;
-								var eventToInsert = null;
-								var eventIndex = index;
-
-								do {
-									if (typeof events[i.format('YYYY-MM-DD')] === 'undefined') {
-										events[i.format('YYYY-MM-DD')] = [];
-									}
-									eventToInsert = clone(event);
-									eventToInsert.index = eventIndex;
-									eventToInsert.isStart = isStart;
-									events[i.format('YYYY-MM-DD')].splice(eventIndex, 0, eventToInsert);
-
-									i.add(1, 'days');
-									isStart = false;
-									eventIndex = (i.day() === 1) ? 0 : eventIndex;
-								}
-								while (i.isBefore(endDate));
-
-								if (eventToInsert) {
-									eventToInsert.isEnd = true;
-								}
-
-								index++;
-							});
-						}
-
-						d++;
-					}.bind(this));
+					var events = this._computeEvents(this.$.agenda.querySelectorAll(".monthview .day"));
 
 					// We draw the events
 					[].slice.call(this.$.agenda.querySelectorAll(".monthview .day")).forEach( function(day) {
@@ -476,7 +481,6 @@
 								var date = moment(day.getAttribute("data-date"), 'YYYY-MM-DD');
 								var eventDate = moment(event.start, moment.ISO_8601);
 								var time = moment(event.start, moment.ISO_8601).format('HH:mm');
-								var duration = moment(event.duration, 'HH:mm');
 
 								if (event.id) {
 									div.id = event.id;
@@ -555,54 +559,98 @@
 				}
 				else {
 					// be sure that I'mon the right view
-					if (!this.$.agenda.querySelectorAll('.view .dayview').length) {
+					/*if (!this.$.agenda.querySelectorAll('.view .dayview').length) {
 						setTimeout( function() { that.drawEvents() }, 0);
 						return;
-					}
-					[].slice.call(this.$.agenda.querySelectorAll(".view zdk-event")).forEach( function(event) {
+					}*/
+					[].slice.call(this.$.agenda.querySelectorAll(".view .event")).forEach( function(event) {
 						event.parentNode.removeChild(event);
 					});
 
+					var events = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"));
+
 					[].slice.call(this.$.agenda.querySelectorAll(".view .dayview")).forEach( function(day) {
 
-						var dayEvents = [];
-						var dayDate = moment(day.getAttribute("data-date"));
+						var dayEvents = events[day.getAttribute("data-date")];
+						var dayDate = moment(day.getAttribute("data-date") , "YYYY-MM-DD");
 
-						for (var i = 0; i < this.events.length; i++) {
-							var date = moment(this.events[i].start, moment.ISO_8601);
+						if (dayEvents && dayEvents.length > 0) {
 
-							if (date.isSame(dayDate, 'day')) {
-								dayEvents.push(this.events[i]);
-							}
-							else if (date.isAfter(dayDate, 'day')) {
-								break;
-							}
-						}
+							dayEvents.sort(function(a, b) {
+								return a.index - b.index;
+							});
 
-						if (dayEvents.length) {
 							var node;
-							[].slice.call(dayEvents).forEach( function ( event, indx ) {
+							dayEvents.forEach( function ( event, indx ) {
 								var nb = 0;
-								var eventElement = document.createElement('zdk-event');
+								var eventElement = document.createElement('div');
 								eventElement.setAttribute("start", event.start);
 								eventElement.setAttribute("end", event.end);
 								eventElement.setAttribute("label", event.label);
-								eventElement.className = event.className;
+								eventElement.classList.add("event");
+								eventElement.classList.add(event.className);
+
+								if (event.isStart) {
+									var time = moment(event.start, moment.ISO_8601).format('HH:mm');
+									eventElement.innerHTML += '<span class="time">' + time + '</span> ';
+								}
+								else {
+									eventElement.classList.add('notStart');
+								}
+
+								if (event.isEnd) {
+									var time = moment(event.end, moment.ISO_8601).format('HH:mm');
+									eventElement.innerHTML += '- <span class="time">' + time + '</span> ';
+								}
+								else {
+									eventElement.classList.add('notEnd');
+								}
+
+								eventElement.innerHTML += '<span class="title">' + event.label + '</span>';
+
+								var start = moment(event.start, moment.ISO_8601);
+								var end = moment(event.end, moment.ISO_8601);
 
 								var prev = dayEvents[indx - 1];
-								while (prev && moment(eventElement.start, moment.ISO_8601).valueOf() < moment(prev.end, moment.ISO_8601).valueOf()) {
+								var offset = 0;
+								while (prev) {
+									if (start.valueOf() < moment(prev.end, moment.ISO_8601).valueOf()) {
+										offset++;
+
+										if (offset == 1 && day.children[indx - 1 - nb]) {
+											day.children[indx - 1 - nb].style.width = 100 - offset * 100 / 3.5 + '%';
+										}
+									}
 									nb++;
-									node = prev;
-									prev = events[indx - 1 - nb];
+									prev = dayEvents[indx - 1 - nb];
 								}
-								for (var j = 1; j <= nb; j++) {
-									day.children[indx - j].style.left = (100 / (nb + 1) * (nb - j)) + "%";
+								eventElement.style.left = offset / 3.0 * 100 + "%";
+
+								// Top position (start)
+								if (!event.isStart) {
+									eventElement.style.top = 0;
 								}
-								eventElement.style.left = (100 - 100 / (nb + 1)) + "%";
+								else {
+									eventElement.style.top = start.hour() * this.hourHeight +
+								                           start.minute() / 60 * this.hourHeight + 
+								                           start.second() / 3600 * this.hourHeight +'px';
+								}
+
+								// Height of the element (duration) 
+								if (!event.isStart) {
+									eventElement.style.height = Math.min(end.diff(dayDate, 'seconds') / 3600, 24) * this.hourHeight + 'px';
+								}
+								else if (end && end.isValid()) {
+									eventElement.style.height = Math.min(end.diff(start, 'seconds'), dayDate.add(1, 'day').diff(start, 'seconds')) / 3600 * this.hourHeight + 'px';
+								}
+								else {
+									// No end date
+									eventElement.style.height = this.hourHeight / 2.0 + 'px';
+								}
 
 								node = day.appendChild(eventElement);
 								// node.addEventListener("click", function() { console.log(this); }, false);
-							});
+							}.bind(this));
 						}
 					}.bind(this));
 				}
