@@ -2,10 +2,11 @@
 <link rel="import" href="../core-toolbar/core-toolbar.html">
 <link rel="import" href="../core-icons/core-icons.html">
 <link rel="import" href="../core-item/core-item.html">
+<link rel="import" href="../core-menu/core-menu.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../paper-dropdown/paper-dropdown.html">
 <link rel="import" href="../scroll/my-scrollbar.html">
 <link rel="import" href="./zdk-event.html">
@@ -23,11 +24,15 @@
 				<paper-icon-button icon="arrow-forward" id="next" on-tap="{{next}}"></paper-icon-button>
 
 				<div class="date" flex></div>
-
-				<paper-menu-button id="view_menu" icon="more-vert">
-					<paper-item class="view-button day-button" on-tap="{{changeView}}" data-view="day">Jour</paper-item>
-					<paper-item class="view-button week-button selected" on-tap="{{changeView}}" data-view="week">Semaine</paper-item>
-					<paper-item class="view-button month-button" on-tap="{{changeView}}" data-view="month">Mois</paper-item>
+				<paper-menu-button id="view_menu">
+					<paper-icon-button icon="more-vert" noink></paper-icon-button>
+					<paper-dropdown class="dropdown">
+						<core-menu class="menu">
+							<paper-item class="view-button day-button" on-tap="{{changeView}}" data-view="day">Jour</paper-item>
+							<paper-item class="view-button week-button selected" on-tap="{{changeView}}" data-view="week">Semaine</paper-item>
+							<paper-item class="view-button month-button" on-tap="{{changeView}}" data-view="month">Mois</paper-item>
+						</core-menu>
+					</paper-dropdown>
 				</paper-menu-button>
 
 				<div id="buttonBar">
@@ -367,7 +372,7 @@
 							var dateEnd = moment(this.events[i].end, moment.ISO_8601);
 
 							if (date.isSame(dayDate, 'day') ||
-								  (d === 0 && date.isBefore(dayDate, 'day') && dateEnd.isAfter(dayDate, 'day'))) {
+									(d === 0 && date.isBefore(dayDate, 'day') && dateEnd.isAfter(dayDate, 'day'))) {
 								dayEvents.push(this.events[i]);
 							}
 							else if (date.isAfter(dayDate, 'day')) {
