@@ -225,6 +225,22 @@ div.day header {
 .event11 { background: #e494c9; }
 .event12 { background: #e2e2e2; }
 
+div.event {
+	position: absolute;
+	border-radius: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 0.8em;
+	margin: 0px 2px;
+	right: 0px;
+	left: 0px;
+	box-sizing: border-box;
+	border: 1px solid white;
+	color: white;
+	padding: 5px;
+	min-height: 40px;
+}
+
 div.eventMonth {
 	position: relative;
 	border-radius: 3px;
@@ -281,6 +297,7 @@ div.event .time {
 
 div.event .title {
 	font-weight: 300;
+	display: block;
 }
 
 #scroll2 .scrollBar { left:5px; }
