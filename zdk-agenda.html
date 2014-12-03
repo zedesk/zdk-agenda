@@ -49,6 +49,8 @@
 					</div>
 				</template>
 			</div>
+			<div id="all-day-events">
+			</div>
 			<div id="scrollarea" forced="true" vanishing="true">
 				<div id="view" class="view">
 					<canvas style="width:100%"></canvas>
@@ -91,6 +93,23 @@
 				content+= '<div class="dayview '+day.type+'"  data-date="'+day.data+'" style="height:'+ (24 * obj.hourHeight)+'px"></div>'
 			}
 			days.innerHTML = content;
+
+			// Draw all-day events container
+			var allDayEvents = obj.$['all-day-events'];
+			var fdayA = moment(obj.day).startOf("week");
+			var allDayEventsContent = '<div class="hours"></div>';
+
+			for (var i = 0; i < 7; i++) {
+				day = moment(fdayA).add(i, 'd');
+				type = "";
+				if (day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")) {
+					type = "today";
+				}
+				day = { day: day.format(format) , date: day.format("DD"), data: day.format("YYYY-MM-DD"), type: type };
+				allDayEventsContent += '<div class="day ' + day.type + '" data-date="' + day.data + '"></div>'
+			}
+			allDayEvents.innerHTML = allDayEventsContent;
+
 			obj.drawEvents();
 			obj.setTime();
 		}
@@ -110,6 +129,13 @@
 			var days = obj.$.agenda.querySelector(".view .days");
 			var content = '<div class="dayview '+day.type+'"  data-date="'+day.data+'" style="height:'+ (24 * obj.hourHeight)+'px"></div>';
 			days.innerHTML = content;
+
+			// Draw all-day events container
+			var allDayEvents = obj.$['all-day-events'];
+			var allDayEventsContent = '<div class="hours"></div>';
+
+			allDayEventsContent += '<div class="day ' + day.type + '" data-date="' + day.data + '"></div>';
+			allDayEvents.innerHTML = allDayEventsContent;
 
 			obj.drawEvents();
 			obj.setTime();
@@ -181,6 +207,7 @@
 					this.$.agenda.querySelector(".view").style.display = "none";
 					this.$.agenda.querySelector(".monthview").style.display = "";
 					this.$.weekdays.querySelector(".hours").style.display = "none";
+					this.$['all-day-events'].style.display = "none";
 					//obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
 					this.setTime(0);
 				}
@@ -188,6 +215,7 @@
 					this.$.agenda.querySelector(".view").style.display = "";
 					this.$.weekdays.querySelector(".hours").style.display = "";
 					this.$.agenda.querySelector(".monthview").style.display = "none";
+					this.$['all-day-events'].style.display = "";
 					this.setTime(this.hourShow);
 				}
 				this.$.view_menu.querySelector(".selected").classList.remove("selected");
@@ -197,6 +225,7 @@
 				this.$.buttonBar.querySelector("." + this.view + '-button').classList.add("selected");
 				this.draw();
 				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
+				this.$['all-day-events'].style.paddingRight = this._getScrollBarWidth() + 'px';
 			},
 
 			ready: function() {
@@ -211,6 +240,7 @@
 					{
 						that.draw();
 						that.$.weekdays.style.paddingRight = that._getScrollBarWidth() + 'px';
+						that.$['all-day-events'].style.paddingRight = that._getScrollBarWidth() + 'px';
 					}, false);
 				this.drawBG();
 
@@ -247,7 +277,8 @@
 							end: moment(eventElement.getAttribute('end'), 'YYYY-MM-DD HH:mm').toISOString(),
 							label: eventElement.getAttribute('label'),
 							dataNum: eventElement.getAttribute('data-num'),
-							className: eventElement.className
+							className: eventElement.className,
+							allDay: eventElement.getAttribute('all-day') || false
 						};
 						this.events.push(event);
 					}.bind(this));
@@ -261,6 +292,7 @@
 				// this.orderEvents();
 				// this.setTime(this.hourShow);
 				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
+				this.$['all-day-events'].style.paddingRight = this._getScrollBarWidth() + 'px';
 			},
 
 			i18nChanged: function(oldValue, newValue) {
@@ -360,7 +392,7 @@
 				return 0;
 			},
 
-			_computeEvents: function(dayNodeList) {
+			_computeEvents: function(dayNodeList, allDayEvents, hourEvents) {
 				var events = {};
 				var d = 0;
 				[].slice.call(dayNodeList).forEach( function(day) {
@@ -369,6 +401,14 @@
 					var dayDate = moment(day.getAttribute("data-date"));
 
 					for (var i = 0; i < this.events.length; i++) {
+
+						if (allDayEvents === false && this.events[i].allDay) {
+							continue;
+						}
+						else if (hourEvents === false && !this.events[i].allDay) {
+							continue;
+						}
+
 						var date = moment(this.events[i].start, moment.ISO_8601);
 						var dateEnd = moment(this.events[i].end, moment.ISO_8601);
 
@@ -377,7 +417,7 @@
 							dayEvents.push(this.events[i]);
 						}
 						else if (date.isAfter(dayDate, 'day')) {
-							break;
+							continue;
 						}
 					}
 
@@ -426,7 +466,7 @@
 								return temp;
 							}
 
-							var i = moment(date);
+							var i = moment(date.format('YYYY-MM-DD'), 'YYYY-MM-DD');
 							var isStart = true;
 							var eventToInsert = null;
 							var eventIndex = index;
@@ -445,7 +485,8 @@
 								i.add(1, 'days');
 								isStart = false;
 							}
-							while (moment(i.format('YYYY-MM-DD'), 'YYYY-MM-DD').isBefore(endDate));
+							while (i.isBefore(endDate) ||
+								     (event.allDay && i.isSame(moment(endDate.format('YYYY-MM-DD'), 'YYYY-MM-DD'))));
 
 							if (eventToInsert) {
 								eventToInsert.isEnd = true;
@@ -594,11 +635,77 @@
 						setTimeout( function() { that.drawEvents() }, 0);
 						return;
 					}*/
+					[].slice.call(this.$['all-day-events'].querySelectorAll(".day .event")).forEach(function(event) {
+						event.parentNode.removeChild(event);
+					}.bind(this));
+
 					[].slice.call(this.$.agenda.querySelectorAll(".view .event")).forEach( function(event) {
 						event.parentNode.removeChild(event);
 					});
 
-					var events = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"));
+					var allDayEvents = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), true, false);
+
+					[].slice.call(this.$['all-day-events'].querySelectorAll(".day")).forEach( function(day) {
+						var dayEvents = allDayEvents[day.getAttribute("data-date")];
+
+						if (dayEvents && dayEvents.length > 0) {
+							dayEvents.sort(function(a, b) {
+								return a.index - b.index;
+							});
+
+							var index = 0;
+
+							function displayEvent(event) {
+								var div = document.createElement('div');
+								div.className = event.className;
+								div.classList.add('event');
+
+								var date = moment(day.getAttribute("data-date"), 'YYYY-MM-DD');
+								var eventDate = moment(event.start, moment.ISO_8601);
+								var time = moment(event.start, moment.ISO_8601).format('HH:mm');
+
+								if (event.id) {
+									div.id = event.id;
+								}
+
+								div.setAttribute('data-num', event.dataNum);
+
+								div.innerHTML = '';
+								if (!event.isStart) {
+									div.classList.add('notStart');
+								}
+
+								if (event.isStart || date.day() === 1) {
+									div.innerHTML += '<span class="title">' + event.label + '</span>';
+								}
+
+								if (!event.isEnd) {
+									div.classList.add('notEnd');
+								}
+
+								div.addEventListener('click', function() {
+									that.fire('zdk-event-click', {event: event});
+								}, false);
+
+								return div;
+							}
+							dayEvents.forEach( function(event) {
+
+								while (parseInt(event.index) > index && index < maxEvents) {
+									var div = document.createElement('div');
+									div.classList.add('eventMonth');
+									day.appendChild(div);
+									index++;
+								}
+
+								day.appendChild(displayEvent(event));
+
+								index++;
+							}.bind(this));
+						}
+					}.bind(this));
+
+					var events = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), false);
 
 					[].slice.call(this.$.agenda.querySelectorAll(".view .dayview")).forEach( function(day) {
 
