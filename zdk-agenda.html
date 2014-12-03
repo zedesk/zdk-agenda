@@ -196,6 +196,7 @@
 				this.$.buttonBar.querySelector(".selected").classList.remove("selected");
 				this.$.buttonBar.querySelector("." + this.view + '-button').classList.add("selected");
 				this.draw();
+				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
 			},
 
 			ready: function() {
@@ -209,7 +210,7 @@
 				window.addEventListener("resize", function() 
 					{
 						that.draw();
-						that.$.weekdays.style.paddingRight = that.getScrollBarWidth() + 'px';
+						that.$.weekdays.style.paddingRight = that._getScrollBarWidth() + 'px';
 					}, false);
 				this.drawBG();
 
@@ -259,7 +260,7 @@
 				//this.view = 'week';
 				// this.orderEvents();
 				// this.setTime(this.hourShow);
-				this.$.weekdays.style.paddingRight = this.getScrollBarWidth() + 'px';
+				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
 			},
 
 			i18nChanged: function(oldValue, newValue) {
@@ -332,6 +333,31 @@
 
 				drawBG( this );
 				drawHours( this );
+			},
+
+			_getScrollBarWidth: function() {
+
+				var inner = null;
+				switch (this.view) {
+					case 'agenda':
+					case 'month':
+						inner = this.$.monthview;
+						break;
+					default:
+						inner = this.$.view;
+						break;
+				}
+
+				if (inner) {
+					var outer = this.$.scrollarea;
+
+					var w1 = inner.offsetWidth;
+					var w2 = outer.offsetWidth;
+
+					return w2 - w1;
+				}
+
+				return 0;
 			},
 
 			_computeEvents: function(dayNodeList) {
@@ -409,6 +435,8 @@
 								if (typeof events[i.format('YYYY-MM-DD')] === 'undefined') {
 									events[i.format('YYYY-MM-DD')] = [];
 								}
+								eventIndex = (i.day() === 1) ? events[i.format('YYYY-MM-DD')].length : eventIndex;
+
 								eventToInsert = clone(event);
 								eventToInsert.index = eventIndex;
 								eventToInsert.isStart = isStart;
@@ -416,7 +444,6 @@
 
 								i.add(1, 'days');
 								isStart = false;
-								eventIndex = (i.day() === 1) ? 0 : eventIndex;
 							}
 							while (moment(i.format('YYYY-MM-DD'), 'YYYY-MM-DD').isBefore(endDate));
 
@@ -738,16 +765,6 @@
 
 			addEvent: function(obj) {
 				this.events.push(obj);
-			},
-
-			getScrollBarWidth: function() {  
-				var inner = this.$.monthview;
-				var outer = this.$.scrollarea;
-
-				var w1 = inner.offsetWidth;
-				var w2 = outer.offsetWidth;
-
-				return w2 - w1;
 			}
 		});
 	// })();
