@@ -8,7 +8,6 @@
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../paper-dropdown/paper-dropdown.html">
-<link rel="import" href="../zdk-scrollarea/zdk-scrollarea.html">
 <link rel="import" href="./zdk-event.html">
 
 <script src="../momentjs/min/moment-with-locales.min.js"></script>
@@ -50,7 +49,7 @@
 					</div>
 				</template>
 			</div>
-			<zdk-scrollarea id="scrollarea" forced="true" vanishing="true">
+			<div id="scrollarea" forced="true" vanishing="true">
 				<div id="view" class="view">
 					<canvas style="width:100%"></canvas>
 					<div class="hours"></div>
@@ -58,7 +57,7 @@
 				</div>
 				<div id="monthview" class="monthview" style="height:600px">
 				</div>
-			</zdk-scrollarea>
+			</div>
 		</div>
 
 		<div id="events" style="display: none">
@@ -207,7 +206,11 @@
 
 				var that = this;
 
-				window.addEventListener("resize", function() { that.draw(); },false);
+				window.addEventListener("resize", function() 
+					{
+						that.draw();
+						that.$.weekdays.style.paddingRight = that.getScrollBarWidth() + 'px';
+					}, false);
 				this.drawBG();
 
 				this.addEventListener('zdk-event-changed', function(evt) {
@@ -256,6 +259,7 @@
 				//this.view = 'week';
 				// this.orderEvents();
 				// this.setTime(this.hourShow);
+				this.$.weekdays.style.paddingRight = this.getScrollBarWidth() + 'px';
 			},
 
 			i18nChanged: function(oldValue, newValue) {
@@ -632,8 +636,8 @@
 								}
 								else {
 									eventElement.style.top = start.hour() * this.hourHeight +
-								                           start.minute() / 60 * this.hourHeight + 
-								                           start.second() / 3600 * this.hourHeight +'px';
+																					 start.minute() / 60 * this.hourHeight + 
+																					 start.second() / 3600 * this.hourHeight +'px';
 								}
 
 								// Height of the element (duration) 
@@ -735,6 +739,16 @@
 			addEvent: function(obj) {
 				this.events.push(obj);
 			},
+
+			getScrollBarWidth: function() {  
+				var inner = this.$.monthview;
+				var outer = this.$.scrollarea;
+
+				var w1 = inner.offsetWidth;
+				var w2 = outer.offsetWidth;
+
+				return w2 - w1;
+			}
 		});
 	// })();
 	</script>
