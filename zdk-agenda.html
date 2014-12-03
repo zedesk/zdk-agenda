@@ -106,7 +106,7 @@
 					type = "today";
 				}
 				day = { day: day.format(format) , date: day.format("DD"), data: day.format("YYYY-MM-DD"), type: type };
-				allDayEventsContent += '<div class="day ' + day.type + '" data-date="' + day.data + '"></div>'
+				allDayEventsContent += '<div class="all-day ' + day.type + '" data-date="' + day.data + '"></div>'
 			}
 			allDayEvents.innerHTML = allDayEventsContent;
 
@@ -134,7 +134,7 @@
 			var allDayEvents = obj.$['all-day-events'];
 			var allDayEventsContent = '<div class="hours"></div>';
 
-			allDayEventsContent += '<div class="day ' + day.type + '" data-date="' + day.data + '"></div>';
+			allDayEventsContent += '<div class="all-day ' + day.type + '" data-date="' + day.data + '"></div>';
 			allDayEvents.innerHTML = allDayEventsContent;
 
 			obj.drawEvents();
@@ -647,7 +647,7 @@
 
 					var allDayEvents = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), true, false);
 
-					[].slice.call(this.$['all-day-events'].querySelectorAll(".day")).forEach( function(day) {
+					[].slice.call(this.$['all-day-events'].querySelectorAll(".all-day")).forEach( function(day) {
 						var dayEvents = allDayEvents[day.getAttribute("data-date")];
 
 						if (dayEvents && dayEvents.length > 0) {
@@ -677,7 +677,7 @@
 									div.classList.add('notStart');
 								}
 
-								if (event.isStart || date.day() === 1) {
+								if (event.isStart || date.day() === 1 || that.view === 'day') {
 									div.innerHTML += '<span class="title">' + event.label + '</span>';
 								}
 
@@ -695,7 +695,7 @@
 
 								while (parseInt(event.index) > index && index < maxEvents) {
 									var div = document.createElement('div');
-									div.classList.add('eventMonth');
+									div.classList.add('event');
 									day.appendChild(div);
 									index++;
 								}
