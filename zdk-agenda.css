@@ -39,6 +39,27 @@ div#buttonBar {
 	}
 }
 
+@media (max-width: 768px) {
+	:host .visible-lg,
+	:host .visible-sm {
+		display: none!important;
+	}
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+	:host .visible-xs,
+	:host .visible-lg {
+		display: none!important;
+	}
+}
+
+@media (min-width: 1024px) {
+	:host .visible-xs,
+	:host .visible-sm {
+		display: none!important;
+	}
+}
+
 div#buttonBar paper-button.selected {
 	background: darkgray;
 	color:white;
@@ -66,6 +87,7 @@ div.weekday {
 	display: flex;
 	display: -ms-flexbox;
 	display: -webkit-flex;
+	align-items: center;
 	padding: 5px 5px;
 	text-align: center;
 }
