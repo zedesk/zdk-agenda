@@ -211,12 +211,16 @@
 				function drawHours( obj ) {
 					var i, div;
 
+					var df = document.createDocumentFragment();
+
 					for ( i = 1; i<25; i++) {
 						div = document.createElement("div");
-						div.innerHTML = pad(i,2);
+						div.innerHTML = pad(i, 2);
 						div.style.bottom = ( (24 - i) * obj.hourHeight) + "px";
-						hours.appendChild(div);
+						df.appendChild(div);
 					}
+
+					hours.appendChild(df);
 				}
 
 				drawBG( this );
@@ -550,6 +554,8 @@
 								return a.index - b.index;
 							});
 
+							var df = document.createDocumentFragment();
+
 							var index = 0;
 							var maxEvents = 3;
 
@@ -598,12 +604,12 @@
 								while (parseInt(event.index) > index && index < maxEvents) {
 									var div = document.createElement('div');
 									div.classList.add('eventMonth');
-									day.appendChild(div);
+									df.appendChild(div);
 									index++;
 								}
 
 								if (index < maxEvents) {
-									day.appendChild(displayEvent(event));
+									df.appendChild(displayEvent(event));
 								}
 								else {
 									hiddenEvents++;
@@ -618,7 +624,7 @@
 								div.innerHTML = '<a class="plusLink">+' + hiddenEvents + '</a>';
 								div.dataset.date = day.getAttribute("data-date");
 								div.addEventListener('click', this.toggleDayDropdown.bind(this));
-								day.appendChild(div);
+								df.appendChild(div);
 
 								var dropdownElement = document.createElement('paper-dropdown');
 								//dropdownElement.setAttribute('layered', true);
@@ -634,8 +640,10 @@
 									dropdownElement.appendChild(displayEvent(event));
 									index++;
 								});
-								day.appendChild(dropdownElement);
+								df.appendChild(dropdownElement);
 							}
+
+							day.appendChild(df);
 						}
 					}.bind(this));
 				}
@@ -667,6 +675,8 @@
 							dayEvents.sort(function(a, b) {
 								return a.index - b.index;
 							});
+
+							var df = document.createDocumentFragment();
 
 							var index = 0;
 
@@ -709,14 +719,16 @@
 								while (parseInt(event.index) > index && index < maxEvents) {
 									var div = document.createElement('div');
 									div.classList.add('event');
-									day.appendChild(div);
+									df.appendChild(div);
 									index++;
 								}
 
-								day.appendChild(displayEvent(event));
+								df.appendChild(displayEvent(event));
 
 								index++;
 							}.bind(this));
+
+							day.appendChild(df);
 						}
 					}.bind(this));
 
@@ -732,6 +744,8 @@
 							dayEvents.sort(function(a, b) {
 								return a.index - b.index;
 							});
+
+							var df = document.createDocumentFragment();
 
 							var node;
 							dayEvents.forEach( function ( event, indx ) {
@@ -801,9 +815,11 @@
 									eventElement.style.height = this.hourHeight / 2.0 + 'px';
 								}
 
-								node = day.appendChild(eventElement);
+								node = df.appendChild(eventElement);
 								// node.addEventListener("click", function() { console.log(this); }, false);
 							}.bind(this));
+
+							day.appendChild(df);
 						}
 					}.bind(this));
 				}
