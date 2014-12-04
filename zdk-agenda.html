@@ -45,7 +45,10 @@
 				<div class="hours"></div>
 				<template repeat = '{{ day in days }}' >
 					<div class="weekday">
-						<span class="day">{{day.day}}</span><span class="date">{{day.date}}</span>
+						<span class="day visible-lg">{{day.day}}</span>
+						<span class="day visible-xs">{{day.dayXs}}</span>
+						<span class="day visible-sm">{{day.daySm}}</span>
+						<span class="date">{{day.date}}</span>
 					</div>
 				</template>
 			</div>
@@ -67,130 +70,6 @@
 		</div>
 	</template>
 	<script>
-	// ( function() {
-		function drawWeekDays(obj) {
-			console.info("drawWeekDays");
-			var day,format, type;
-
-			moment.locale( obj.i18n );
-			// get the first day of the week
-			var fday = moment(obj.day).startOf("week");
-
-			var bannerDate = obj.$.banner.querySelector(".date");
-			bannerDate.innerHTML = fday.format("DD MMM")+ " - " + moment(fday).add(6,'d').format("DD MMM YYYY");
-
-			var days = obj.$.agenda.querySelector(".view .days");
-			var content = "";
-
-			obj.days = [];
-			format = ( obj.$.agenda.offsetWidth > 900 )?"dddd":"ddd";
-			for ( var i=0; i < 7; i++) {
-				day = moment(fday).add(i,'d');
-				type = "";
-				if( day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD") ) type = "today";
-				day = { day: day.format(format) , date:day.format("DD"), data: day.format("YYYY-MM-DD"), type: type };
-				obj.days.push(day);
-				content+= '<div class="dayview '+day.type+'"  data-date="'+day.data+'" style="height:'+ (24 * obj.hourHeight)+'px"></div>'
-			}
-			days.innerHTML = content;
-
-			// Draw all-day events container
-			var allDayEvents = obj.$['all-day-events'];
-			var fdayA = moment(obj.day).startOf("week");
-			var allDayEventsContent = '<div class="hours"></div>';
-
-			for (var i = 0; i < 7; i++) {
-				day = moment(fdayA).add(i, 'd');
-				type = "";
-				if (day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")) {
-					type = "today";
-				}
-				day = { day: day.format(format) , date: day.format("DD"), data: day.format("YYYY-MM-DD"), type: type };
-				allDayEventsContent += '<div class="all-day ' + day.type + '" data-date="' + day.data + '"></div>'
-			}
-			allDayEvents.innerHTML = allDayEventsContent;
-
-			obj.drawEvents();
-			obj.setTime();
-		}
-
-		function drawDay(obj) {
-			obj.days = [];
-			var day = {
-				day: obj.day.format("dddd") ,
-				date:obj.day.format("DD"),
-				data: obj.day.format("YYYY-MM-DD"),
-				type: ( obj.day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD") )?"today":""
-			};
-			obj.days.push( day );
-			var bannerDate = obj.$.banner.querySelector(".date");
-			bannerDate.innerHTML = obj.day.format("ddd LL");
-
-			var days = obj.$.agenda.querySelector(".view .days");
-			var content = '<div class="dayview '+day.type+'"  data-date="'+day.data+'" style="height:'+ (24 * obj.hourHeight)+'px"></div>';
-			days.innerHTML = content;
-
-			// Draw all-day events container
-			var allDayEvents = obj.$['all-day-events'];
-			var allDayEventsContent = '<div class="hours"></div>';
-
-			allDayEventsContent += '<div class="all-day ' + day.type + '" data-date="' + day.data + '"></div>';
-			allDayEvents.innerHTML = allDayEventsContent;
-
-			obj.drawEvents();
-			obj.setTime();
-		}
-
-		function drawMonth(obj) {
-			var day,format, div, fday, week;
-			moment.locale( obj.i18n );
-
-			var view = obj.$.agenda.querySelector(".monthview");
-			var content = "";
-
-			// Draw days bar
-			obj.days = [];
-			fday = moment(obj.day).startOf("week");
-			format = ( obj.$.agenda.offsetWidth > 900 )?"dddd":"ddd";
-			for ( var i=0; i < 7; i++) {
-				day = moment(fday).add(i,'d');
-				day = { day: day.format(format) };
-				obj.days.push(day);
-			}
-
-			// get the first day of the month
-			fday = moment(obj.day).date(1).weekday(0);
-			var bannerDate = obj.$.banner.querySelector(".date");
-			bannerDate.innerHTML = obj.day.format("MMM YYYY");
-
-			var today = moment();
-			for (var w = 0; w < 6; w++) {
-				week = "";
-				for (var d = 0; d < 7; d++) {
-					day = { date: fday.date(), data: fday.format("YYYY-MM-DD"), type: "" };
-					if (fday.year() ==today.year() && fday.month()==today.month() && fday.date()==today.date()  ) {
-						day.type = "today";
-					}
-					if (fday.month() != obj.day.month()) {
-						day.type += (day.type.length ? " " : "") + "d1";
-					}
-					if ([0,6].indexOf(fday.day()) !== -1) {
-						day.type += (day.type.length ? " " : "") + "we";
-					}
-					week += '<div class="day ' + day.type + '" data-date="' + day.data +'">';
-					week += '<header><span class="day-link">' + day.date + '<span></header>';
-					week += '</div>';
-					fday.add('d',1);
-				}
-				content += '<div class="row">'+week+'</div>';
-			}
-			view.innerHTML = content;
-			[].slice.call(view.querySelectorAll('.day-link')).forEach(function(link) {
-				//link.addEventListener("click", obj.showDay.bind(obj), false);
-			});
-			obj.drawEvents();
-		}
-
 		Polymer({
 			day: null,
 			i18n: null,
@@ -198,6 +77,8 @@
 			hourShow: 8,
 			days: [],
 			events: [],
+			eventsByDay: {},
+			allDayEventsByDay: {},
 
 			/**
 			 * Method called when view is changed.
@@ -229,7 +110,6 @@
 			},
 
 			ready: function() {
-				console.info("ready");
 				this.i18n = this.i18n ? this.i18n: navigator.language || navigator.userLanguage;
 				moment.locale( this.i18n );
 				this.day = (typeof this.date === "string")?moment(this.date):moment();
@@ -238,31 +118,11 @@
 
 				window.addEventListener("resize", function() 
 					{
-						that.draw();
+						that.drawEvents(false);
 						that.$.weekdays.style.paddingRight = that._getScrollBarWidth() + 'px';
 						that.$['all-day-events'].style.paddingRight = that._getScrollBarWidth() + 'px';
 					}, false);
 				this.drawBG();
-
-				this.addEventListener('zdk-event-changed', function(evt) {
-					var event = evt.target;
-
-					if (event.start) {
-						var start = moment(event.start, moment.ISO_8601);
-						event.style.top = ( ( start.hours() + start.minutes() / 60 ) * that.hourHeight ) + "px";
-
-						if (event.end) {
-							var end = moment(event.end, moment.ISO_8601);
-
-							if (end.isAfter(start)) {
-								duration = end.substract(start);
-								event.style.height = ( duration.hours() + duration.minutes() / 60 ) * that.hourHeight + 'px';
-							}
-						}
-					}
-
-					that.drawEvents();
-				}, true);
 
 				this.events = [];
 
@@ -283,8 +143,6 @@
 						this.events.push(event);
 					}.bind(this));
 				}
-
-				this.drawEvents();
 			},
 
 			domReady: function() {
@@ -302,23 +160,21 @@
 			},
 
 			draw: function() {
-				console.info("draw");
 				switch( this.view ) {
 					case 'agenda':
 					case 'month':
-						drawMonth(this);
+						this.drawMonth();
 						break;
 					case 'week':
-						drawWeekDays(this);
+						this.drawWeekDays();
 						break;
 					case 'day':
-						drawDay(this);
+						this.drawDay();
 						break;
 				}
 			},
 
 			drawBG: function() {
-				console.info("drawBG");
 				var canvas = this.$.agenda.querySelector("canvas");
 				var hours =  this.$.agenda.querySelector(".view .hours");
 				canvas.width  = this.$.agenda.offsetWidth;
@@ -390,6 +246,151 @@
 				}
 
 				return 0;
+			},
+
+			drawMonth: function() {
+				var day, format, div, fday, week;
+				moment.locale(this.i18n);
+
+				var view = this.$.agenda.querySelector(".monthview");
+				var content = "";
+
+				// Draw days bar
+				this.days = [];
+				fday = moment(this.day).startOf("week");
+				for (var i = 0; i < 7; i++) {
+					day = moment(fday).add(i, 'd');
+					day = {
+									dayXs: day.format('dd'),
+									daySm: day.format('ddd'),
+									day: day.format('dddd')
+								};
+					this.days.push(day);
+				}
+
+				// get the first day of the month
+				fday = moment(this.day).date(1).weekday(0);
+				var bannerDate = this.$.banner.querySelector(".date");
+				bannerDate.innerHTML = this.day.format("MMM YYYY");
+
+				var today = moment();
+				for (var w = 0; w < 6; w++) {
+					week = "";
+					for (var d = 0; d < 7; d++) {
+						day = { date: fday.date(), data: fday.format("YYYY-MM-DD"), type: "" };
+						if (fday.year()  == today.year() &&
+							  fday.month() == today.month() &&
+							  fday.date()  == today.date()) {
+							day.type = "today";
+						}
+
+						if (fday.month() != this.day.month()) {
+							day.type += (day.type.length ? " " : "") + "d1";
+						}
+
+						if ([0,6].indexOf(fday.day()) !== -1) {
+							day.type += (day.type.length ? " " : "") + "we";
+						}
+
+						week += '<div class="day ' + day.type + '" data-date="' + day.data +'">';
+						week += '<header><span class="day-link">' + day.date + '<span></header>';
+						week += '</div>';
+						fday.add('d', 1);
+					}
+					content += '<div class="row">' + week + '</div>';
+				}
+				view.innerHTML = content;
+				[].slice.call(view.querySelectorAll('.day-link')).forEach(function(link) {
+					//link.addEventListener("click", this.showDay.bind(this), false);
+				}.bind(this));
+
+				this.drawEvents();
+				this.setTime();
+			},
+
+			drawWeekDays: function() {
+				var day, type;
+
+				moment.locale( this.i18n );
+				// get the first day of the week
+				var fday = moment(this.day).startOf("week");
+
+				var bannerDate = this.$.banner.querySelector(".date");
+				bannerDate.innerHTML = fday.format("DD MMM") + " - " + moment(fday).add(6, 'd').format("DD MMM YYYY");
+
+				var days = this.$.agenda.querySelector(".view .days");
+				var content = "";
+
+				this.days = [];
+				for (var i = 0; i < 7; i++) {
+					day = moment(fday).add(i, 'd');
+					type = "";
+					if (day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")) {
+						type = "today";
+					}
+					day = {
+
+						day: day.format('dddd'),
+						dayXs: day.format('dd'),
+						daySm: day.format('ddd'),
+						date: day.format("DD"),
+						data: day.format("YYYY-MM-DD"),
+						type: type
+					};
+					this.days.push(day);
+					content += '<div class="dayview ' + day.type + '"  data-date="' + day.data + '" style="height:' + (24 * this.hourHeight) + 'px"></div>';
+				}
+				days.innerHTML = content;
+
+				// Draw all-day events container
+				var allDayEvents = this.$['all-day-events'];
+				var fdayA = moment(this.day).startOf("week");
+				var allDayEventsContent = '<div class="hours"></div>';
+
+				for (var i = 0; i < 7; i++) {
+					day = moment(fdayA).add(i, 'd');
+					type = "";
+					if (day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")) {
+						type = "today";
+					}
+					day = {
+						date: day.format("DD"),
+						data: day.format("YYYY-MM-DD"),
+						type: type
+					};
+					allDayEventsContent += '<div class="all-day ' + day.type + '" data-date="' + day.data + '"></div>'
+				}
+				allDayEvents.innerHTML = allDayEventsContent;
+
+				this.drawEvents();
+				this.setTime();
+			},
+
+			drawDay: function() {
+				this.days = [];
+
+				var day = {
+					day: this.day.format('dddd'),
+					dayXs: this.day.format('dd'),
+					daySm: this.day.format('ddd'),
+					date: this.day.format("DD"),
+					data: this.day.format("YYYY-MM-DD"),
+					type: ( this.day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD") ) ? "today" : ""
+				};
+				this.days.push( day );
+				var bannerDate = this.$.banner.querySelector(".date");
+				bannerDate.innerHTML = this.day.format("ddd LL");
+
+				var days = this.$.agenda.querySelector(".view .days");
+				var content = '<div class="dayview ' + day.type + '"  data-date="' + day.data + '" style="height:' + (24 * this.hourHeight) + 'px"></div>';
+				days.innerHTML = content;
+
+				// Draw all-day events container
+				var allDayEvents = this.$['all-day-events'];
+				var allDayEventsContent = '<div class="hours"></div>';
+
+				allDayEventsContent += '<div class="all-day ' + day.type + '" data-date="' + day.data + '"></div>';
+				allDayEvents.innerHTML = allDayEventsContent;
 			},
 
 			_computeEvents: function(dayNodeList, allDayEvents, hourEvents) {
@@ -513,15 +514,16 @@
 				});
 			},
 
-			drawEvents: function() {
-				if (this.events.length > 0) {
+			drawEvents: function(compute) {
+
+				if (compute !== false && this.events.length > 0) {
 					this.orderEvents();
 				}
 
 				var that = this;
 				if (this.view === "month") {
 					if (!this.$.agenda.querySelectorAll(".monthview .day").length) {
-						setTimeout( function() { that.drawEvents() }, 0);
+						setTimeout( function() { that.drawEvents(compute) }, 0);
 						return;
 					}
 
@@ -533,7 +535,11 @@
 						element.parentNode.removeChild(element);
 					});
 
-					var events = this._computeEvents(this.$.agenda.querySelectorAll(".monthview .day"));
+					if (compute !== false) {
+						this.eventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".monthview .day"));
+					}
+
+					var events = this.eventsByDay;
 
 					// We draw the events
 					[].slice.call(this.$.agenda.querySelectorAll(".monthview .day")).forEach( function(day) {
@@ -564,7 +570,9 @@
 
 								div.innerHTML = '';
 								if (event.isStart) {
-									div.innerHTML += '<span class="time">' + time + '</span> ';
+									if (!event.allDay) {
+										div.innerHTML += '<span class="time">' + time + '</span> ';
+									}
 								}
 								else {
 									div.classList.add('notStart');
@@ -637,7 +645,7 @@
 						setTimeout( function() { that.drawEvents() }, 0);
 						return;
 					}*/
-					[].slice.call(this.$['all-day-events'].querySelectorAll(".day .event")).forEach(function(event) {
+					[].slice.call(this.$['all-day-events'].querySelectorAll(".all-day .event")).forEach(function(event) {
 						event.parentNode.removeChild(event);
 					}.bind(this));
 
@@ -645,7 +653,12 @@
 						event.parentNode.removeChild(event);
 					});
 
-					var allDayEvents = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), true, false);
+					if (compute !== false) {
+						this.allDayEventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), true, false);
+						this.eventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), false);;
+					}
+
+					var allDayEvents = this.allDayEventsByDay;
 
 					[].slice.call(this.$['all-day-events'].querySelectorAll(".all-day")).forEach( function(day) {
 						var dayEvents = allDayEvents[day.getAttribute("data-date")];
@@ -707,7 +720,7 @@
 						}
 					}.bind(this));
 
-					var events = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), false);
+					var events = this.eventsByDay;
 
 					[].slice.call(this.$.agenda.querySelectorAll(".view .dayview")).forEach( function(day) {
 
