@@ -213,7 +213,7 @@
 
 					var df = document.createDocumentFragment();
 
-					for ( i = 1; i<25; i++) {
+					for ( i = 1; i < 25; i++) {
 						div = document.createElement("div");
 						div.innerHTML = pad(i, 2);
 						div.style.bottom = ( (24 - i) * obj.hourHeight) + "px";
@@ -407,8 +407,9 @@
 
 					var dayEvents = [];
 					var dayDate = moment(day.getAttribute("data-date"));
+					var length = this.events.length;
 
-					for (var i = 0; i < this.events.length; i++) {
+					for (var i = 0; i < length; i++) {
 
 						if (allDayEvents === false && this.events[i].allDay) {
 							continue;
