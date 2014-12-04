@@ -395,6 +395,9 @@
 
 				allDayEventsContent += '<div class="all-day ' + day.type + '" data-date="' + day.data + '"></div>';
 				allDayEvents.innerHTML = allDayEventsContent;
+
+				this.drawEvents();
+				this.setTime();
 			},
 
 			_computeEvents: function(dayNodeList, allDayEvents, hourEvents) {
