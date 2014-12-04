@@ -341,3 +341,10 @@ div.event .title {
 }
 
 #scroll2 .scrollBar { left:5px; }
+
+#drag-avatar {
+	position: absolute;
+	display: none;
+	pointer-events: none;
+	border: solid 1px transparent;
+}

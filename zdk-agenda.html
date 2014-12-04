@@ -65,6 +65,11 @@
 			</div>
 		</div>
 
+		<div id="drag-avatar">
+			<span class="time"></span>
+			<span class="title"></span>
+		</div>
+
 		<div id="events" style="display: none">
 			<content></content>
 		</div>
@@ -151,6 +156,16 @@
 				// this.setTime(this.hourShow);
 				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
 				this.$['all-day-events'].style.paddingRight = this._getScrollBarWidth() + 'px';
+
+				document.addEventListener('dragover', function(e) {
+					this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 + 'px';
+					this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 + 'px';
+				}.bind(this));
+
+				document.addEventListener('dragend', function(e) {
+					console.log('dragend');
+					this.$['drag-avatar'].style.display = 'none';
+				}.bind(this));
 			},
 
 			i18nChanged: function(oldValue, newValue) {
@@ -567,6 +582,38 @@
 								var div = document.createElement('div');
 								div.className = event.className;
 								div.classList.add('eventMonth');
+								div.setAttribute('draggable', true);
+
+								div.addEventListener('dragstart', function(e) {
+
+									var img = document.createElement('img');
+									img.width = e.target.offsetWidth;
+									img.height = e.target.offsetHeight;
+
+									var canvas = document.createElementNS("http://www.w3.org/1999/xhtml","canvas");
+									canvas.width = e.target.offsetWidth;
+									canvas.height = e.target.offsetHeight;
+
+									img.src = canvas.toDataURL();
+
+									var dt = e.dataTransfer;
+									dt.setData('text/plain', '');
+									dt.setDragImage(img, e.target.offsetWidth / 2, e.target.offsetHeight / 2);
+
+									this.$['drag-avatar'].style.width = e.target.offsetWidth + 'px';
+									this.$['drag-avatar'].style.height = e.target.offsetHeight + 'px';
+									this.$['drag-avatar'].className = e.target.className;
+									this.$['drag-avatar'].classList.remove('notStart');
+									this.$['drag-avatar'].classList.remove('notEnd');
+									this.$['drag-avatar'].style.top = e.clientY + 'px';
+									this.$['drag-avatar'].style.left = e.clientX + 'px';
+									this.$['drag-avatar'].style.display = 'block';
+
+									this.$['drag-avatar'].innerHTML = e.target.innerHTML;
+
+									//e.preventDefault();
+									//return false;*/
+								}.bind(that));
 
 								var date = moment(day.getAttribute("data-date"), 'YYYY-MM-DD');
 								var eventDate = moment(event.start, moment.ISO_8601);
@@ -688,6 +735,7 @@
 								var div = document.createElement('div');
 								div.className = event.className;
 								div.classList.add('event');
+								div.setAttribute('draggable', true);
 
 								var innerElement = [];
 
@@ -914,7 +962,7 @@
 
 			addEvent: function(obj) {
 				this.events.push(obj);
-			}
+			},
 		});
 	// })();
 	</script>
