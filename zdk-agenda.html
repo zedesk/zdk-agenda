@@ -179,7 +179,7 @@
 							event.style.opacity = 1;
 						});
 					}
-					
+
 				}.bind(this));
 			},
 
@@ -341,7 +341,7 @@
 
 						dayElement.addEventListener('mousemove', function(e) {
 							if (this.dragging) {
-								var date = e.target.getAttribute('data-date');
+								var date = e.currentTarget.getAttribute('data-date');
 								var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
 
 								if (date && eventIndex && this.events.length > eventIndex) {
@@ -365,11 +365,37 @@
 									});
 								}
 							}
+							e.preventDefault();
 						}.bind(this));
 
-						/*dayElement.addEventListener('drop', function(e) {
-							console.log(e.currentTarget.getAttribute('data-date'));
-						});*/
+						dayElement.addEventListener('mouseup', function(e) {
+							if (this.dragging) {
+								var dayDate = moment(e.currentTarget.getAttribute('data-date'), 'YYYY-MM-DD');
+
+								if (this.events.length > this.$['drag-avatar'].getAttribute('data-num')) {
+									var event = this.events[this.$['drag-avatar'].getAttribute('data-num')];
+
+									var eventStart = moment(event.start, moment.ISO_8601);
+									var eventEnd = moment(event.end, moment.ISO_8601);
+
+									var dayStart = moment(eventStart.format('YYYY-MM-DD'), 'YYYY-MM-DD');
+
+									// Is the new start date different than the old one ?
+									if (!eventStart.isSame(dayDate, 'day')) {
+										// Difference between new date and event start
+										var diff = dayDate.diff(dayStart, 'days');
+
+										eventStart.add(diff, 'days');
+										eventEnd.add(diff, 'days');
+
+										event.start = eventStart.toISOString();
+										event.end = eventEnd.toISOString();
+
+										this.drawEvents();
+									}
+								}
+							}
+						}.bind(this));
 
 						week.appendChild(dayElement);
 						fday.add('d', 1);
