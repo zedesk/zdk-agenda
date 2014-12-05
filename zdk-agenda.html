@@ -117,7 +117,7 @@
 			ready: function() {
 				this.i18n = this.i18n ? this.i18n: navigator.language || navigator.userLanguage;
 				moment.locale( this.i18n );
-				this.day = (typeof this.date === "string")?moment(this.date):moment();
+				this.day = (typeof this.date === "string") ? moment(this.date) : moment();
 
 				var that = this;
 
@@ -141,7 +141,6 @@
 							start: moment(eventElement.getAttribute('start'), 'YYYY-MM-DD HH:mm').toISOString(),
 							end: moment(eventElement.getAttribute('end'), 'YYYY-MM-DD HH:mm').toISOString(),
 							label: eventElement.getAttribute('label'),
-							dataNum: eventElement.getAttribute('data-num'),
 							className: eventElement.className,
 							allDay: eventElement.getAttribute('all-day') || false
 						};
@@ -163,8 +162,16 @@
 				}.bind(this));
 
 				document.addEventListener('dragend', function(e) {
-					console.log('dragend');
 					this.$['drag-avatar'].style.display = 'none';
+
+					[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
+						day.classList.remove('dragover');
+					});
+
+					var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
+					[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
+						event.style.opacity = 1;
+					});
 				}.bind(this));
 			},
 
@@ -272,7 +279,13 @@
 				moment.locale(this.i18n);
 
 				var view = this.$.agenda.querySelector(".monthview");
-				var content = "";
+
+				// Clear the view
+				while (view.firstChild) {
+					view.removeChild(view.firstChild);
+				}
+
+				var content = document.createDocumentFragment();
 
 				// Draw days bar
 				this.days = [];
@@ -294,7 +307,7 @@
 
 				var today = moment();
 				for (var w = 0; w < 6; w++) {
-					week = [];
+					week = document.createDocumentFragment();
 					for (var d = 0; d < 7; d++) {
 						day = { date: fday.date(), data: fday.format("YYYY-MM-DD"), type: "" };
 						if (fday.year()  == today.year() &&
@@ -311,14 +324,57 @@
 							day.type += (day.type.length ? " " : "") + "we";
 						}
 
-						week.push('<div class="day ', day.type, '" data-date="', day.data, '">');
-						week.push('<header><span class="day-link">', day.date, '<span></header>');
-						week.push('</div>');
+						var dayElement = document.createElement('div');
+						dayElement.className = 'day ' + day.type;
+						dayElement.setAttribute('data-date', day.data);
+
+						dayElement.innerHTML = '<header><span class="day-link">' + day.date + '<span></header>';
+
+						dayElement.addEventListener('dragover', function(e) {
+							var date = e.currentTarget.getAttribute('data-date');
+							var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
+
+							if (date && eventIndex && this.events.length > eventIndex) {
+
+								var date = moment(date, 'YYYY-MM-DD');
+								var event = this.events[eventIndex];
+								var start = moment(event.start, moment.ISO_8601);
+								var end = moment(event.end, moment.ISO_8601);
+
+								var diff = end.diff(start, 'days') + 1;
+
+								[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
+									var dayDate = moment(day.getAttribute('data-date'), 'YYYY-MM-DD');
+
+									if (dayDate.diff(date, 'days') >= 0 && dayDate.diff(date, 'days') < diff) {
+										day.classList.add('dragover');
+									}
+									else {
+										day.classList.remove('dragover');
+									}
+								});
+								e.preventDefault();
+							}
+						}.bind(this));
+
+						dayElement.addEventListener('drop', function(e) {
+							console.log(e.target.getAttribute('data-date'));
+						});
+
+						week.appendChild(dayElement);
 						fday.add('d', 1);
 					}
-					content += '<div class="row">' + week.join('') + '</div>';
+
+					var df = document.createDocumentFragment();
+					df.appendChild(week);
+
+					var row = document.createElement('div');
+					row.className = 'row';
+					row.appendChild(df);
+
+					content.appendChild(row);
 				}
-				view.innerHTML = content;
+				view.appendChild(content);
 				[].slice.call(view.querySelectorAll('.day-link')).forEach(function(link) {
 					//link.addEventListener("click", this.showDay.bind(this), false);
 				}.bind(this));
@@ -425,6 +481,8 @@
 					var length = this.events.length;
 
 					for (var i = 0; i < length; i++) {
+
+						this.events[i].num = i;
 
 						if (allDayEvents === false && this.events[i].allDay) {
 							continue;
@@ -586,19 +644,23 @@
 
 								div.addEventListener('dragstart', function(e) {
 
-									var img = document.createElement('img');
-									img.width = e.target.offsetWidth;
-									img.height = e.target.offsetHeight;
+									// Change opacity of the dragged event
+									var eventIndex = e.target.getAttribute('data-num');
+									[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
+										event.style.opacity = 0.5;
+									});
 
-									var canvas = document.createElementNS("http://www.w3.org/1999/xhtml","canvas");
+									var img = document.createElement('img');
+
+									var canvas = document.createElement('canvas');
 									canvas.width = e.target.offsetWidth;
 									canvas.height = e.target.offsetHeight;
 
 									img.src = canvas.toDataURL();
 
 									var dt = e.dataTransfer;
-									dt.setData('text/plain', '');
-									dt.setDragImage(img, e.target.offsetWidth / 2, e.target.offsetHeight / 2);
+									e.dataTransfer.setData('text/plain', '');
+									e.dataTransfer.setDragImage(img, e.target.offsetWidth / 2, e.target.offsetHeight / 2);
 
 									this.$['drag-avatar'].style.width = e.target.offsetWidth + 'px';
 									this.$['drag-avatar'].style.height = e.target.offsetHeight + 'px';
@@ -608,8 +670,15 @@
 									this.$['drag-avatar'].style.top = e.clientY + 'px';
 									this.$['drag-avatar'].style.left = e.clientX + 'px';
 									this.$['drag-avatar'].style.display = 'block';
+									this.$['drag-avatar'].setAttribute('data-num', e.target.getAttribute('data-num'));
 
-									this.$['drag-avatar'].innerHTML = e.target.innerHTML;
+									var innerElement = [];
+
+									var time = moment(event.start, moment.ISO_8601).format('HH:mm');
+									innerElement.push('<span class="time">', time, '</span> ');
+									innerElement.push('<span class="title">', event.label, '</span>');
+
+									this.$['drag-avatar'].innerHTML = innerElement.join('');
 
 									//e.preventDefault();
 									//return false;*/
@@ -623,7 +692,7 @@
 									div.id = event.id;
 								}
 
-								div.setAttribute('data-num', event.dataNum);
+								div.setAttribute('data-num', event.num);
 
 								div.innerHTML = '';
 								if (event.isStart) {
@@ -650,7 +719,7 @@
 								return div;
 							}
 							var hiddenEvents = 0;
-							dayEvents.forEach( function(event) {
+							dayEvents.forEach( function(event, i) {
 
 								while (parseInt(event.index) > index && index < maxEvents) {
 									var div = document.createElement('div');
@@ -747,7 +816,7 @@
 									div.id = event.id;
 								}
 
-								div.setAttribute('data-num', event.dataNum);
+								div.setAttribute('data-num', event.num);
 
 								if (!event.isStart) {
 									div.classList.add('notStart');

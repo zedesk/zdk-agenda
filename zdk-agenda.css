@@ -348,3 +348,7 @@ div.event .title {
 	pointer-events: none;
 	border: solid 1px transparent;
 }
+
+.dragover {
+	background: #eeeeff;
+}
