@@ -60,7 +60,7 @@
 					<div class="hours"></div>
 					<div class="days"></div>
 				</div>
-				<div id="monthview" class="monthview" style="height:600px">
+				<div id="monthview" class="monthview" style="height:600px" touch-action="none">
 				</div>
 			</div>
 		</div>
@@ -84,6 +84,7 @@
 			events: [],
 			eventsByDay: {},
 			allDayEventsByDay: {},
+			dragging: false,
 
 			/**
 			 * Method called when view is changed.
@@ -156,22 +157,29 @@
 				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
 				this.$['all-day-events'].style.paddingRight = this._getScrollBarWidth() + 'px';
 
-				document.addEventListener('dragover', function(e) {
-					this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 + 'px';
-					this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 + 'px';
+				this.addEventListener('mousemove', function(e) {
+					if (this.dragging) {
+						this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 + 'px';
+						this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 + 'px';
+					}
 				}.bind(this));
 
-				document.addEventListener('dragend', function(e) {
-					this.$['drag-avatar'].style.display = 'none';
+				document.addEventListener('mouseup', function(e) {
+					if (this.dragging) {
+						this.dragging = false;
+						this.classList.add('dragging');
+						this.$['drag-avatar'].style.display = 'none';
 
-					[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
-						day.classList.remove('dragover');
-					});
+						[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
+							day.classList.remove('dragover');
+						});
 
-					var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
-					[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
-						event.style.opacity = 1;
-					});
+						var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
+						[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
+							event.style.opacity = 1;
+						});
+					}
+					
 				}.bind(this));
 			},
 
@@ -327,39 +335,41 @@
 						var dayElement = document.createElement('div');
 						dayElement.className = 'day ' + day.type;
 						dayElement.setAttribute('data-date', day.data);
+						dayElement.setAttribute('touch-action', 'none');
 
 						dayElement.innerHTML = '<header><span class="day-link">' + day.date + '<span></header>';
 
-						dayElement.addEventListener('dragover', function(e) {
-							var date = e.currentTarget.getAttribute('data-date');
-							var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
+						dayElement.addEventListener('mousemove', function(e) {
+							if (this.dragging) {
+								var date = e.target.getAttribute('data-date');
+								var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
 
-							if (date && eventIndex && this.events.length > eventIndex) {
+								if (date && eventIndex && this.events.length > eventIndex) {
 
-								var date = moment(date, 'YYYY-MM-DD');
-								var event = this.events[eventIndex];
-								var start = moment(event.start, moment.ISO_8601);
-								var end = moment(event.end, moment.ISO_8601);
+									var date = moment(date, 'YYYY-MM-DD');
+									var event = this.events[eventIndex];
+									var start = moment(event.start, moment.ISO_8601);
+									var end = moment(event.end, moment.ISO_8601);
 
-								var diff = end.diff(start, 'days') + 1;
+									var diff = end.diff(start, 'days') + 1;
 
-								[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
-									var dayDate = moment(day.getAttribute('data-date'), 'YYYY-MM-DD');
+									[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
+										var dayDate = moment(day.getAttribute('data-date'), 'YYYY-MM-DD');
 
-									if (dayDate.diff(date, 'days') >= 0 && dayDate.diff(date, 'days') < diff) {
-										day.classList.add('dragover');
-									}
-									else {
-										day.classList.remove('dragover');
-									}
-								});
-								e.preventDefault();
+										if (dayDate.diff(date, 'days') >= 0 && dayDate.diff(date, 'days') < diff) {
+											day.classList.add('dragover');
+										}
+										else {
+											day.classList.remove('dragover');
+										}
+									});
+								}
 							}
 						}.bind(this));
 
-						dayElement.addEventListener('drop', function(e) {
-							console.log(e.target.getAttribute('data-date'));
-						});
+						/*dayElement.addEventListener('drop', function(e) {
+							console.log(e.currentTarget.getAttribute('data-date'));
+						});*/
 
 						week.appendChild(dayElement);
 						fday.add('d', 1);
@@ -640,9 +650,12 @@
 								var div = document.createElement('div');
 								div.className = event.className;
 								div.classList.add('eventMonth');
-								div.setAttribute('draggable', true);
+								div.setAttribute('touch-action', 'none');
 
-								div.addEventListener('dragstart', function(e) {
+								div.addEventListener('mousedown', function(e) {
+
+									this.dragging = true;
+									this.classList.add('dragging');
 
 									// Change opacity of the dragged event
 									var eventIndex = e.target.getAttribute('data-num');
@@ -650,7 +663,7 @@
 										event.style.opacity = 0.5;
 									});
 
-									var img = document.createElement('img');
+									/*var img = document.createElement('img');
 
 									var canvas = document.createElement('canvas');
 									canvas.width = e.target.offsetWidth;
@@ -660,7 +673,7 @@
 
 									var dt = e.dataTransfer;
 									e.dataTransfer.setData('text/plain', '');
-									e.dataTransfer.setDragImage(img, e.target.offsetWidth / 2, e.target.offsetHeight / 2);
+									e.dataTransfer.setDragImage(img, e.target.offsetWidth / 2, e.target.offsetHeight / 2);*/
 
 									this.$['drag-avatar'].style.width = e.target.offsetWidth + 'px';
 									this.$['drag-avatar'].style.height = e.target.offsetHeight + 'px';
@@ -680,7 +693,7 @@
 
 									this.$['drag-avatar'].innerHTML = innerElement.join('');
 
-									//e.preventDefault();
+									e.preventDefault();
 									//return false;*/
 								}.bind(that));
 
