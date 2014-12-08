@@ -215,7 +215,8 @@ div.monthview > div.row {
 	height: 100px;
 }
 
-div.day {
+#view div.day,
+#monthview div.day {
 	-webkit-flex: 1;
 	-ms-flex: 1;
 	flex: 1;
@@ -355,4 +356,38 @@ div.event .title {
 
 .dragover {
 	background: #eeeeff;
+}
+
+/*===============*/
+/* PLANNING VIEW */
+/*===============*/
+
+#planning-view {
+	padding: 10px;
+}
+
+#planning-view > .day {
+	display: none;
+	padding: 5px 0;
+	clear: left;
+}
+
+#planning-view > .day h2 {
+	font-size: 15px;
+	margin: 0;
+	float: left;
+}
+
+#planning-view > .day.has-events {
+	display: block;
+}
+
+#planning-view > .day .events {
+	/*display: inline-block;*/
+	float: left;
+	padding-left: 20px;
+}
+
+#planning-view .event > span.title {
+	display: inline;
 }
