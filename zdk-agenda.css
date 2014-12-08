@@ -368,7 +368,7 @@ div.event .title {
 
 #planning-view > .day {
 	display: none;
-	padding: 5px 0;
+	padding: 5px 0 20px;
 	clear: left;
 }
 
@@ -376,6 +376,7 @@ div.event .title {
 	font-size: 15px;
 	margin: 0;
 	float: left;
+	width: 250px;
 }
 
 #planning-view > .day.has-events {
@@ -383,9 +384,7 @@ div.event .title {
 }
 
 #planning-view > .day .events {
-	/*display: inline-block;*/
-	float: left;
-	padding-left: 20px;
+	display: inline-block;
 }
 
 #planning-view .event > span.title {

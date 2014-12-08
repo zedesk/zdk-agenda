@@ -12,14 +12,14 @@
 
 <script src="../momentjs/min/moment-with-locales.min.js"></script>
 
-<polymer-element name="zdk-agenda" attributes="date i18n view hourHeight hourShow editable">
+<polymer-element name="zdk-agenda" attributes="date lang view hourHeight hourShow editable">
 	<template>
 		<link rel="stylesheet" href="zdk-agenda.css">
 		<div vertical layout id="agenda">
 			<core-toolbar id="banner">
 				<paper-icon-button icon="arrow-back" id="previous" on-tap="{{previous}}"></paper-icon-button>
-				<paper-button id="today" on-tap="{{today}}">Today</paper-button>
-				<paper-icon-button id="today_icon_button" icon="today" on-tap="{{today}}">Today</paper-icon-button>
+				<paper-button id="today" on-tap="{{today}}">[['Today' | i18n]]</paper-button>
+				<paper-icon-button id="today_icon_button" icon="today" on-tap="{{today}}">[['Today' | i18n]]</paper-icon-button>
 				<paper-icon-button icon="arrow-forward" id="next" on-tap="{{next}}"></paper-icon-button>
 
 				<div class="date" flex></div>
@@ -27,19 +27,19 @@
 					<paper-icon-button icon="more-vert" noink></paper-icon-button>
 					<paper-dropdown class="dropdown">
 						<core-menu class="menu">
-							<paper-item class="view-button day-button" on-tap="{{changeView}}" data-view="day">Jour</paper-item>
-							<paper-item class="view-button week-button selected" on-tap="{{changeView}}" data-view="week">Semaine</paper-item>
-							<paper-item class="view-button month-button" on-tap="{{changeView}}" data-view="month">Mois</paper-item>
-							<paper-button class="view-button planning-button" on-tap="{{changeView}}" data-view="planning">Planning</paper-button>
+							<paper-item class="view-button day-button" on-tap="{{changeView}}" data-view="day">[['Day' | i18n]]</paper-item>
+							<paper-item class="view-button week-button selected" on-tap="{{changeView}}" data-view="week">[['Week' | i18n]]</paper-item>
+							<paper-item class="view-button month-button" on-tap="{{changeView}}" data-view="month">[['Month' | i18n]]</paper-item>
+							<paper-button class="view-button planning-button" on-tap="{{changeView}}" data-view="planning">[['Planning' | i18n]]</paper-button>
 						</core-menu>
 					</paper-dropdown>
 				</paper-menu-button>
 
 				<div id="buttonBar">
-					<paper-button class="view-button day-button" on-tap="{{changeView}}" data-view="day">Jour</paper-button>
-					<paper-button class="view-button week-button selected" on-tap="{{changeView}}" data-view="week">Semaine</paper-button>
-					<paper-button class="view-button month-button" on-tap="{{changeView}}" data-view="month">Mois</paper-button>
-					<paper-button class="view-button planning-button" on-tap="{{changeView}}" data-view="planning">Planning</paper-button>
+					<paper-button class="view-button day-button" on-tap="{{changeView}}" data-view="day">[['Day' | i18n]]</paper-button>
+					<paper-button class="view-button week-button selected" on-tap="{{changeView}}" data-view="week">[['Week' | i18n]]</paper-button>
+					<paper-button class="view-button month-button" on-tap="{{changeView}}" data-view="month">[['Month' | i18n]]</paper-button>
+					<paper-button class="view-button planning-button" on-tap="{{changeView}}" data-view="planning">[['Planning' | i18n]]</paper-button>
 				</div>
 			</core-toolbar>
 			<div id="weekdays">
@@ -80,7 +80,7 @@
 	<script>
 		Polymer({
 			day: null,
-			i18n: null,
+			lang: null,
 			hourHeight: 50,
 			hourShow: 8,
 			days: [],
@@ -89,6 +89,28 @@
 			allDayEventsByDay: {},
 			dragging: false,
 			editable: true,
+
+			/**
+			 * Translations.
+			 */
+			translations: {
+				'fr': {
+					'Today': 'Aujourd\'hui',
+					'Month': 'Mois',
+					'Week': 'Semaine',
+					'Day': 'Jour',
+					'Planning': 'Planning',
+					'All the day': 'Toute la journée',
+					'more': 'en plus'
+				},
+			},
+
+			i18n: function(text) {
+				if (this.translations[this.lang]) {
+					return this.translations[this.lang][text] || text;
+				}
+				return text;
+			},
 
 			/**
 			 * Method called when view is changed.
@@ -135,8 +157,8 @@
 			},
 
 			ready: function() {
-				this.i18n = this.i18n ? this.i18n: navigator.language || navigator.userLanguage;
-				moment.locale( this.i18n );
+				this.lang = this.lang ? this.lang: navigator.language || navigator.userLanguage;
+				moment.locale( this.lang );
 				this.day = (typeof this.date === "string") ? moment(this.date) : moment();
 
 				var that = this;
@@ -254,9 +276,9 @@
 				}.bind(this));
 			},
 
-			i18nChanged: function(oldValue, newValue) {
+			langChanged: function(oldValue, newValue) {
 				if (!oldValue) return;
-				this.i18n = newValue ? newValue : navigator.language || navigator.userLanguage;
+				this.lang = newValue ? newValue : navigator.language || navigator.userLanguage;
 				this.draw();
 			},
 
@@ -376,7 +398,7 @@
 					dayElement.setAttribute('data-date', day.format('YYYY-MM-DD'));
 
 					dayElement.innerHTML = [
-						'<h2>', day.format('MM/DD/YYYY'), '</h2>'
+						'<h2>', day.format('LL'), '</h2>'
 					].join('');
 
 					df.appendChild(dayElement);
@@ -391,7 +413,7 @@
 
 			drawMonth: function() {
 				var day, format, div, fday, week;
-				moment.locale(this.i18n);
+				moment.locale(this.lang);
 
 				var view = this.$.agenda.querySelector(".monthview");
 
@@ -531,7 +553,7 @@
 			drawWeekDays: function() {
 				var day, type;
 
-				moment.locale( this.i18n );
+				moment.locale( this.lang );
 				// get the first day of the week
 				var fday = moment(this.day).startOf("week");
 
@@ -948,7 +970,7 @@
 								if (hiddenEvents > 0) {
 									var div = document.createElement('div');
 									div.classList.add('eventMonth');
-									div.innerHTML = '<a class="plusLink">+' + hiddenEvents + '</a>';
+									div.innerHTML = '<a class="plusLink">+' + hiddenEvents + ' ' + this.i18n('more') + '</a>';
 									div.dataset.date = day.getAttribute("data-date");
 									div.addEventListener('click', this.toggleDayDropdown.bind(this));
 									df.appendChild(div);
