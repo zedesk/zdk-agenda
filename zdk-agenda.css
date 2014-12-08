@@ -300,6 +300,10 @@ div.eventMonth,
 	/* border: 2px solid rgb(127,127,127); */
 }
 
+body.dragging div.eventMonth {
+	pointer-events: none;
+}
+
 div.eventMonth.notStart,
 #all-day-events .event.notStart {
 	margin-left: -1px;
@@ -341,3 +345,14 @@ div.event .title {
 }
 
 #scroll2 .scrollBar { left:5px; }
+
+#drag-avatar {
+	position: absolute;
+	display: none;
+	pointer-events: none;
+	border: solid 1px transparent;
+}
+
+.dragover {
+	background: #eeeeff;
+}

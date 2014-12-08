@@ -30,12 +30,12 @@ zdk-agenda is a calendar/agenda web component, using Polymer, that present diffe
 
 ## Options
 
-| Attribute     | Type (default) | Description   |
-| ------------- | -------------- | ------------- |
-| `i18n`        | string         |               |
-| `hourHeight`  | number         |               |
-| `hourShow`    | number         |               |
-| `view`        | string         |               |
+| Attribute     | Type (default) | Description                 |
+| ------------- | -------------- | --------------------------- |
+| `i18n`        | string         |                             |
+| `hourHeight`  | number         |                             |
+| `hourShow`    | number         |                             |
+| `view`        | string         | The initial view to display (`day`, `week` or `month`) |
 
 ## Methods
 
@@ -57,4 +57,4 @@ zdk-agenda is a calendar/agenda web component, using Polymer, that present diffe
 * ~~Send an event on clicking an "event"~~
 * ~~Handle cell overflow in the month view (add a "+n" button to display hidden events, like in Google Calendar)~~
 * Add the ability to move/resize events with the mouse
-* All-day events
+* ~~All-day events~~
