@@ -12,7 +12,7 @@
 
 <script src="../momentjs/min/moment-with-locales.min.js"></script>
 
-<polymer-element name="zdk-agenda" attributes="date i18n view hourHeight hourShow">
+<polymer-element name="zdk-agenda" attributes="date i18n view hourHeight hourShow editable">
 	<template>
 		<link rel="stylesheet" href="zdk-agenda.css">
 		<div vertical layout id="agenda">
@@ -85,6 +85,7 @@
 			eventsByDay: {},
 			allDayEventsByDay: {},
 			dragging: false,
+			editable: true,
 
 			/**
 			 * Method called when view is changed.
@@ -732,38 +733,40 @@
 								div.classList.add('eventMonth');
 								div.setAttribute('touch-action', 'none');
 
-								div.addEventListener('mousedown', function(e) {
+								if (that.editable) {
+									div.addEventListener('mousedown', function(e) {
 
-									this.dragging = true;
-									this.classList.add('dragging');
+										this.dragging = true;
+										this.classList.add('dragging');
 
-									// Change opacity of the dragged event
-									var eventIndex = e.target.getAttribute('data-num');
-									[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
-										event.style.opacity = 0.5;
-									});
+										// Change opacity of the dragged event
+										var eventIndex = e.target.getAttribute('data-num');
+										[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
+											event.style.opacity = 0.5;
+										});
 
-									this.$['drag-avatar'].style.width = e.target.offsetWidth + 'px';
-									this.$['drag-avatar'].style.height = e.target.offsetHeight + 'px';
-									this.$['drag-avatar'].className = e.target.className;
-									this.$['drag-avatar'].classList.remove('notStart');
-									this.$['drag-avatar'].classList.remove('notEnd');
-									this.$['drag-avatar'].style.top = e.clientY + 'px';
-									this.$['drag-avatar'].style.left = e.clientX + 'px';
-									this.$['drag-avatar'].style.display = 'block';
-									this.$['drag-avatar'].setAttribute('data-num', e.target.getAttribute('data-num'));
+										this.$['drag-avatar'].style.width = e.target.offsetWidth + 'px';
+										this.$['drag-avatar'].style.height = e.target.offsetHeight + 'px';
+										this.$['drag-avatar'].className = e.target.className;
+										this.$['drag-avatar'].classList.remove('notStart');
+										this.$['drag-avatar'].classList.remove('notEnd');
+										this.$['drag-avatar'].style.top = e.clientY + 'px';
+										this.$['drag-avatar'].style.left = e.clientX + 'px';
+										this.$['drag-avatar'].style.display = 'block';
+										this.$['drag-avatar'].setAttribute('data-num', e.target.getAttribute('data-num'));
 
-									var innerElement = [];
+										var innerElement = [];
 
-									var time = moment(event.start, moment.ISO_8601).format('HH:mm');
-									innerElement.push('<span class="time">', time, '</span> ');
-									innerElement.push('<span class="title">', event.label, '</span>');
+										var time = moment(event.start, moment.ISO_8601).format('HH:mm');
+										innerElement.push('<span class="time">', time, '</span> ');
+										innerElement.push('<span class="title">', event.label, '</span>');
 
-									this.$['drag-avatar'].innerHTML = innerElement.join('');
+										this.$['drag-avatar'].innerHTML = innerElement.join('');
 
-									e.preventDefault();
-									//return false;*/
-								}.bind(that));
+										e.preventDefault();
+										//return false;*/
+									}.bind(that));
+								}
 
 								var date = moment(day.getAttribute("data-date"), 'YYYY-MM-DD');
 								var eventDate = moment(event.start, moment.ISO_8601);
@@ -1028,7 +1031,7 @@
 									that.fire('zdk-event-click', {event: event});
 								}, false);
 
-								if (event.isStart && event.isEnd) {
+								if (event.isStart && event.isEnd && this.editable) {
 
 									eventElement.addEventListener("mousedown", function(e) {
 										this.dragging = true;
