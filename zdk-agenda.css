@@ -90,6 +90,7 @@ div.weekday {
 	align-items: center;
 	padding: 5px 5px;
 	text-align: center;
+	overflow: hidden;
 }
 
 div.weekday:nth-child(3) {
@@ -223,6 +224,7 @@ div.monthview > div.row {
 	border-left: 1px solid #ccc;
 	/*overflow: hidden;*/
 	height: 100%;
+	overflow: hidden;
 }
 
 div.monthview .day-link {
@@ -283,7 +285,6 @@ div.day header {
 	color: white;
 	padding: 5px;
 	min-height: 40px;
-	text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
 }
 
 div.eventMonth,
@@ -299,7 +300,6 @@ div.eventMonth,
 	color: white;
 	height: 15px;
 	cursor: pointer;
-	text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
 	/* border: 2px solid rgb(127,127,127); */
 }
 
