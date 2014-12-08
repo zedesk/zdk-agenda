@@ -132,6 +132,7 @@ div#all-day-events .all-day {
 	-ms-flex: 1;
 	padding: 0;
 	height: 100%;
+	overflow: hidden;
 }
 
 #scrollarea {
@@ -218,13 +219,19 @@ div.monthview > div.row {
 
 #view div.day,
 #monthview div.day {
+	position: relative;
 	-webkit-flex: 1;
 	-ms-flex: 1;
 	flex: 1;
-	border-left: 1px solid #ccc;
-	/*overflow: hidden;*/
 	height: 100%;
 	overflow: hidden;
+}
+
+div#monthview > div.row > div.day > .border {
+	border-left: 1px solid #ccc;
+	height: 100%;
+	width: 0;
+	position: absolute;
 }
 
 div.monthview .day-link {
@@ -235,11 +242,7 @@ div.monthview .day-link:hover {
 	text-decoration: underline;
 }
 
-div.monthview > div.row > div.day {
-	border-left: 1px solid #ccc;
-}
-
-div.monthview > div.row > div.day:first-child {
+div#monthview > div.row > div.day:first-child .border {
 	border-left: none;
 }
 
@@ -300,7 +303,6 @@ div.eventMonth,
 	color: white;
 	height: 15px;
 	cursor: pointer;
-	/* border: 2px solid rgb(127,127,127); */
 }
 
 body.dragging div.eventMonth {
