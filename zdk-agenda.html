@@ -159,25 +159,77 @@
 
 				this.addEventListener('mousemove', function(e) {
 					if (this.dragging) {
-						this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 + 'px';
-						this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 + 'px';
+						switch (this.view) {
+							case 'agenda':
+								break;
+							case 'month':
+								this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 + 'px';
+								this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 + 'px';
+								break;
+							default:
+								if (this.draggedEvent) {
+									var diffY = e.pageY - this.dragMouseInitialY;
+									this.draggedEvent.style.top = Math.min(Math.max(0, Math.round((this.dragInitialY + diffY) / (this.hourHeight / 4)) * this.hourHeight / 4), 24 * this.hourHeight)  + 'px';
+								}
+						}
 					}
 				}.bind(this));
 
 				document.addEventListener('mouseup', function(e) {
 					if (this.dragging) {
-						this.dragging = false;
-						this.classList.add('dragging');
-						this.$['drag-avatar'].style.display = 'none';
+						switch (this.view) {
+							case 'agenda':
+								break;
+							case 'month':
+								this.dragging = false;
+								this.classList.add('dragging');
+								this.$['drag-avatar'].style.display = 'none';
 
-						[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
-							day.classList.remove('dragover');
-						});
+								[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
+									day.classList.remove('dragover');
+								});
 
-						var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
-						[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
-							event.style.opacity = 1;
-						});
+								var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
+								[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
+									event.style.opacity = 1;
+								});
+								break;
+							default:
+								if (this.draggedEvent) {
+									this.dragging = false;
+
+									if (this.events.length > this.draggedEvent.getAttribute('data-num')) {
+										var event = this.events[this.draggedEvent.getAttribute('data-num')];
+
+										var eventStart = moment(event.start, moment.ISO_8601);
+										var eventEnd = moment(event.end, moment.ISO_8601);
+
+										var eventPos = parseInt(this.draggedEvent.style.top.replace(/[^-\d\.]/g, ''));
+
+										var newStart = moment(eventStart);
+
+										newStart.hours(Math.floor(eventPos / this.hourHeight));
+										newStart.minutes(Math.floor((eventPos / this.hourHeight) * 60 % 60));
+
+										// Is the new start date different than the old one ?
+										if (!eventStart.isSame(newStart)) {
+											// Difference between new date and event start
+											var diff = newStart.diff(eventStart);
+
+											eventEnd.add(diff);
+
+											event.start = newStart.toISOString();
+											event.end = eventEnd.toISOString();
+
+											this.fire('zdk-event-changed', {event: event});
+
+											this.drawEvents();
+										}
+									}
+
+									this.draggedEvent = null;
+								}
+						}
 					}
 
 				}.bind(this));
@@ -390,6 +442,8 @@
 
 										event.start = eventStart.toISOString();
 										event.end = eventEnd.toISOString();
+
+										this.fire('zdk-event-changed', {event: event});
 
 										this.drawEvents();
 									}
@@ -689,18 +743,6 @@
 										event.style.opacity = 0.5;
 									});
 
-									/*var img = document.createElement('img');
-
-									var canvas = document.createElement('canvas');
-									canvas.width = e.target.offsetWidth;
-									canvas.height = e.target.offsetHeight;
-
-									img.src = canvas.toDataURL();
-
-									var dt = e.dataTransfer;
-									e.dataTransfer.setData('text/plain', '');
-									e.dataTransfer.setDragImage(img, e.target.offsetWidth / 2, e.target.offsetHeight / 2);*/
-
 									this.$['drag-avatar'].style.width = e.target.offsetWidth + 'px';
 									this.$['drag-avatar'].style.height = e.target.offsetHeight + 'px';
 									this.$['drag-avatar'].className = e.target.className;
@@ -843,7 +885,6 @@
 								var div = document.createElement('div');
 								div.className = event.className;
 								div.classList.add('event');
-								div.setAttribute('draggable', true);
 
 								var innerElement = [];
 
@@ -919,6 +960,7 @@
 								eventElement.setAttribute("label", event.label);
 								eventElement.classList.add("event");
 								eventElement.classList.add(event.className);
+								eventElement.setAttribute('data-num', event.num);
 
 								var innerElement = [];
 
@@ -982,9 +1024,27 @@
 
 								eventElement.innerHTML += innerElement.join('');
 
-								node = df.appendChild(eventElement);
-								// node.addEventListener("click", function() { console.log(this); }, false);
-							}.bind(this));
+								eventElement.addEventListener("click", function() {
+									that.fire('zdk-event-click', {event: event});
+								}, false);
+
+								if (event.isStart && event.isEnd) {
+
+									eventElement.addEventListener("mousedown", function(e) {
+										this.dragging = true;
+										this.classList.add('dragging');
+
+										this.draggedEvent = e.currentTarget;
+										this.dragMouseInitialY = e.pageY;
+										this.dragInitialY = parseInt(this.draggedEvent.style.top.replace(/[^-\d\.]/g, ''));
+
+										e.preventDefault();
+									}.bind(this), false);
+								}
+
+								df.appendChild(eventElement);
+
+							}.bind(that));
 
 							day.appendChild(df);
 						}
