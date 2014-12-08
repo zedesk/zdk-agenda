@@ -256,18 +256,18 @@ div.day header {
 	padding-left: 5px;
 }
 
-.event1  { background: #6699ff; }
-.event2  { background: #527acc; }
-.event3  { background: #9999ff; }
-.event4  { background: #33ccff; }
-.event5  { background: #66ffcc; }
+.event1  { background: #1ABC9C; }
+.event2  { background: #2ECC71; }
+.event3  { background: #3498DB; }
+.event4  { background: #9B59B6; }
+.event5  { background: #34495E; }
 .event6  { background: #33cc33; }
-.event7  { background: #ffff82; }
-.event8  { background: #ffbd7d; }
-.event9  { background: #ff7575; }
-.event10 { background: #fa5858; }
-.event11 { background: #e494c9; }
-.event12 { background: #e2e2e2; }
+.event7  { background: #E67E22; }
+.event8  { background: #E74C3C; }
+.event9  { background: #16A085; }
+.event10 { background: #27AE60; }
+.event11 { background: #2980B9; }
+.event12 { background: #8E44AD; }
 
 #view div.event {
 	position: absolute;
@@ -283,6 +283,7 @@ div.day header {
 	color: white;
 	padding: 5px;
 	min-height: 40px;
+	text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
 }
 
 div.eventMonth,
@@ -298,6 +299,7 @@ div.eventMonth,
 	color: white;
 	height: 15px;
 	cursor: pointer;
+	text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
 	/* border: 2px solid rgb(127,127,127); */
 }
 
