@@ -1,10 +1,11 @@
-# zdk-agenda
+zdk-agenda
+==========
 
-## Introduction
+# Introduction
 
-zdk-agenda is a calendar/agenda web component, using Polymer, that present different views of a calendar: day, week, month.
+zdk-agenda is a calendar/agenda web component, using Polymer, that present different views of a full-sized calendar: day, week, month, planning.
 
-## Usage
+# Usage
 
 1. Import the Web Components' polyfill:
 
@@ -28,16 +29,16 @@ zdk-agenda is a calendar/agenda web component, using Polymer, that present diffe
 </zdk-agenda>
 ```
 
-## Options
+# Options
 
 | Attribute     | Type (default) | Description                 |
 | ------------- | -------------- | --------------------------- |
-| `i18n`        | string         |                             |
+| `lang`        | string         | Language                    |
 | `hourHeight`  | number         |                             |
 | `hourShow`    | number         |                             |
-| `view`        | string         | The initial view to display (`day`, `week` or `month`) |
+| `view`        | string         | The initial view to display (`day`, `week`, `month` or `planning`) |
 
-## Methods
+# Methods
 
 | Method        | Parameters    | Description   |
 | ------------- | ------------- | ------------- |
@@ -46,15 +47,16 @@ zdk-agenda is a calendar/agenda web component, using Polymer, that present diffe
 | `next()`      | None          | Display the next day/week/month, depending on the current view. |
 | `today()`     | None          | Display the current day. |
 
-## Events
+# Events
 
-| Event             | Data          | Description       |
-| ----------------- | ------------- | -------------     |
-| `zdk-event-click` | Event data    | Click on a event. |
+| Event               | Data          | Description       |
+| ------------------- | ------------- | -------------     |
+| `zdk-event-click`   | Event data    | Click on a event. |
+| `zdk-event-changed` | Event data    | An event has been changed by drag&drop |
 
-## TODO
+# TODO
 
-* ~~Send an event on clicking an "event"~~
-* ~~Handle cell overflow in the month view (add a "+n" button to display hidden events, like in Google Calendar)~~
-* Add the ability to move/resize events with the mouse
-* ~~All-day events~~
+* Recurring events
+* More customization options
+* Enhance responsiveness
+* Remove paper elements
