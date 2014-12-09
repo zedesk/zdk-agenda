@@ -47,6 +47,39 @@ zdk-agenda is a calendar/agenda web component, using Polymer, that present diffe
 | `next()`      | None          | Display the next day/week/month, depending on the current view. |
 | `today()`     | None          | Display the current day. |
 
+# Event data
+
+Event data can be changed by changing the value of the `events` attribute, for instance:
+
+```javascript
+myAgenda.events = [
+    {
+        label: 'An event',
+        start: '2014-11-11 09:00',
+        end: '2014-11-11 10:00',
+        className: 'event1',
+        allDay: false
+    },
+    {
+        label: 'All day event',
+        start: '2014-11-12',
+        end: '2014-11-12',
+        className: 'event2',
+        allDay: true
+    }
+];
+```
+
+An event item has such attributes:
+
+| Attribute     | Type (default) | Description                         |
+| ------------- | -------------- | ----------------------------------- |
+| `label`       | string         | Label to display                    |
+| `start`       | string         | Start datetime (`YYYY-MM-DD HH:mm`) |
+| `end`         | string         | End datetime (`YYYY-MM-DD HH:mm`)   |
+| `className`   | string         | Classname                           |
+| `allDay`      | boolean        | Is it an all-day event?             |
+
 # Events
 
 | Event               | Data          | Description       |
