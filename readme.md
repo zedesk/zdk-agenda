@@ -1,10 +1,11 @@
-# zdk-agenda
+zdk-agenda
+==========
 
-## Introduction
+# Introduction
 
-zdk-agenda is a calendar/agenda web component, using Polymer, that present different views of a calendar: day, week, month.
+zdk-agenda is a calendar/agenda web component, using Polymer, that present different views of a full-sized calendar: day, week, month, planning.
 
-## Usage
+# Usage
 
 1. Import the Web Components' polyfill:
 
@@ -28,16 +29,16 @@ zdk-agenda is a calendar/agenda web component, using Polymer, that present diffe
 </zdk-agenda>
 ```
 
-## Options
+# Options
 
-| Attribute     | Type (default) | Description   |
-| ------------- | -------------- | ------------- |
-| `i18n`        | string         |               |
-| `hourHeight`  | number         |               |
-| `hourShow`    | number         |               |
-| `view`        | string         |               |
+| Attribute     | Type (default) | Description                 |
+| ------------- | -------------- | --------------------------- |
+| `lang`        | string         | Language                    |
+| `hourHeight`  | number         |                             |
+| `hourShow`    | number         |                             |
+| `view`        | string         | The initial view to display (`day`, `week`, `month` or `planning`) |
 
-## Methods
+# Methods
 
 | Method        | Parameters    | Description   |
 | ------------- | ------------- | ------------- |
@@ -46,15 +47,49 @@ zdk-agenda is a calendar/agenda web component, using Polymer, that present diffe
 | `next()`      | None          | Display the next day/week/month, depending on the current view. |
 | `today()`     | None          | Display the current day. |
 
-## Events
+# Event data
 
-| Event             | Data          | Description       |
-| ----------------- | ------------- | -------------     |
-| `zdk-event-click` | Event data    | Click on a event. |
+Event data can be changed by changing the value of the `events` attribute, for instance:
 
-## TODO
+```javascript
+myAgenda.events = [
+    {
+        label: 'An event',
+        start: '2014-11-11 09:00',
+        end: '2014-11-11 10:00',
+        className: 'event1',
+        allDay: false
+    },
+    {
+        label: 'All day event',
+        start: '2014-11-12',
+        end: '2014-11-12',
+        className: 'event2',
+        allDay: true
+    }
+];
+```
 
-* ~~Send an event on clicking an "event"~~
-* ~~Handle cell overflow in the month view (add a "+n" button to display hidden events, like in Google Calendar)~~
-* Add the ability to move/resize events with the mouse
-* All-day events
+An event item has such attributes:
+
+| Attribute     | Type (default) | Description                         |
+| ------------- | -------------- | ----------------------------------- |
+| `label`       | string         | Label to display                    |
+| `start`       | string         | Start datetime (`YYYY-MM-DD HH:mm`) |
+| `end`         | string         | End datetime (`YYYY-MM-DD HH:mm`)   |
+| `className`   | string         | Classname                           |
+| `allDay`      | boolean        | Is it an all-day event?             |
+
+# Events
+
+| Event               | Data          | Description       |
+| ------------------- | ------------- | -------------     |
+| `zdk-event-click`   | Event data    | Click on a event. |
+| `zdk-event-changed` | Event data    | An event has been changed by drag&drop |
+
+# TODO
+
+* Recurring events
+* More customization options
+* Enhance responsiveness
+* Remove paper elements

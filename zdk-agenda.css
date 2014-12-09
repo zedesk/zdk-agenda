@@ -1,10 +1,9 @@
 :host {
 	font-family: 'Oxygen', Verdana, Arial;
 	font-size: 14px;
-	min-width: 500px;
-	min-height: 500px;
 	display: block;
 	position: relative;
+	height: 100%;
 }
 
 #agenda {
@@ -18,8 +17,8 @@
 div#buttonBar {
 	display: -ms-flexbox;
 	display: -webkit-flex;
-	display:flex;
-	margin-right:5px;
+	display: flex;
+	margin-right: 5px;
 }
 
 @media (max-width: 700px) {
@@ -36,6 +35,27 @@ div#buttonBar {
 		display: none!important;
 	}
 	:host #today_icon_button {
+		display: none!important;
+	}
+}
+
+@media (max-width: 768px) {
+	:host .visible-lg,
+	:host .visible-sm {
+		display: none!important;
+	}
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+	:host .visible-xs,
+	:host .visible-lg {
+		display: none!important;
+	}
+}
+
+@media (min-width: 1024px) {
+	:host .visible-xs,
+	:host .visible-sm {
 		display: none!important;
 	}
 }
@@ -67,8 +87,10 @@ div.weekday {
 	display: flex;
 	display: -ms-flexbox;
 	display: -webkit-flex;
+	align-items: center;
 	padding: 5px 5px;
 	text-align: center;
+	overflow: hidden;
 }
 
 div.weekday:nth-child(3) {
@@ -86,17 +108,40 @@ span.date {
 	font-size: 2em;
 }
 
-my-scrollarea {
+div#all-day-events {
+	display: flex;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	-webkit-align-items: stretch;
+	align-items: stretch;
+	background: #f5f5f5;
+	position: relative;
+	border-top: solid 1px #ccc;
+	border-bottom: solid 1px #ddd;
+	position: relative;
+}
+
+div#all-day-events .all-day {
+	display: block;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex: 1;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	padding: 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+#scrollarea {
 	-webkit-flex: 1;
 	-ms-flex:1;
 	flex:1;
+	overflow: auto;
+	padding-right : 1px
 }
-
-my-scrollarea::shadow .scrollBar {
-	right:0px;
-}
-
-my-scrollarea .scrollBar { right:0px; }
 
 div.hours {
 	position:relative;
@@ -172,13 +217,21 @@ div.monthview > div.row {
 	height: 100px;
 }
 
-div.day {
+#view div.day,
+#monthview div.day {
+	position: relative;
 	-webkit-flex: 1;
 	-ms-flex: 1;
 	flex: 1;
-	border-left: 1px solid #ccc;
-	/*overflow: hidden;*/
 	height: 100%;
+	overflow: hidden;
+}
+
+div#monthview > div.row > div.day > .border {
+	border-left: 1px solid #ccc;
+	height: 100%;
+	width: 0;
+	position: absolute;
 }
 
 div.monthview .day-link {
@@ -189,11 +242,7 @@ div.monthview .day-link:hover {
 	text-decoration: underline;
 }
 
-div.monthview > div.row > div.day {
-	border-left: 1px solid #ccc;
-}
-
-div.monthview > div.row > div.day:first-child {
+div#monthview > div.row > div.day:first-child .border {
 	border-left: none;
 }
 
@@ -212,20 +261,20 @@ div.day header {
 	padding-left: 5px;
 }
 
-.event1  { background: #6699ff; }
-.event2  { background: #527acc; }
-.event3  { background: #9999ff; }
-.event4  { background: #33ccff; }
-.event5  { background: #66ffcc; }
+.event1  { background: #1ABC9C; }
+.event2  { background: #2ECC71; }
+.event3  { background: #3498DB; }
+.event4  { background: #9B59B6; }
+.event5  { background: #34495E; }
 .event6  { background: #33cc33; }
-.event7  { background: #ffff82; }
-.event8  { background: #ffbd7d; }
-.event9  { background: #ff7575; }
-.event10 { background: #fa5858; }
-.event11 { background: #e494c9; }
-.event12 { background: #e2e2e2; }
+.event7  { background: #E67E22; }
+.event8  { background: #E74C3C; }
+.event9  { background: #16A085; }
+.event10 { background: #27AE60; }
+.event11 { background: #2980B9; }
+.event12 { background: #8E44AD; }
 
-div.event {
+#view div.event {
 	position: absolute;
 	border-radius: 5px;
 	overflow: hidden;
@@ -241,7 +290,8 @@ div.event {
 	min-height: 40px;
 }
 
-div.eventMonth {
+div.eventMonth,
+#all-day-events .event {
 	position: relative;
 	border-radius: 3px;
 	padding: 2px 4px;
@@ -253,16 +303,21 @@ div.eventMonth {
 	color: white;
 	height: 15px;
 	cursor: pointer;
-	/* border: 2px solid rgb(127,127,127); */
 }
 
-div.eventMonth.notStart {
+body.dragging div.eventMonth {
+	pointer-events: none;
+}
+
+div.eventMonth.notStart,
+#all-day-events .event.notStart {
 	margin-left: -1px;
 	border-bottom-left-radius: 0;
 	border-top-left-radius: 0;
 }
 
-div.eventMonth.notEnd {
+div.eventMonth.notEnd,
+#all-day-events .event.notEnd {
 	margin-right: -1px;
 	border-bottom-right-radius: 0;
 	border-top-right-radius: 0;
@@ -274,12 +329,6 @@ div.day paper-dropdown {
 
 paper-dropdown div.eventMonth.notStart {
 	margin-left: 0;
-}
-
-div.eventMonth.notEnd {
-	margin-right: -1px;
-	border-bottom-right-radius: 0;
-	border-top-right-radius: 0;
 }
 
 paper-dropdown div.eventMonth.notEnd {
@@ -301,3 +350,47 @@ div.event .title {
 }
 
 #scroll2 .scrollBar { left:5px; }
+
+#drag-avatar {
+	position: absolute;
+	display: none;
+	pointer-events: none;
+	border: solid 1px transparent;
+}
+
+.dragover {
+	background: #eeeeff;
+}
+
+/*===============*/
+/* PLANNING VIEW */
+/*===============*/
+
+#planning-view {
+	padding: 10px;
+}
+
+#planning-view > .day {
+	display: none;
+	padding: 5px 0 20px;
+	clear: left;
+}
+
+#planning-view > .day h2 {
+	font-size: 15px;
+	margin: 0;
+	float: left;
+	width: 250px;
+}
+
+#planning-view > .day.has-events {
+	display: block;
+}
+
+#planning-view > .day .events {
+	display: inline-block;
+}
+
+#planning-view .event > span.title {
+	display: inline;
+}
