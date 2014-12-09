@@ -1,0 +1,396 @@
+:host {
+	font-family: 'Oxygen', Verdana, Arial;
+	font-size: 14px;
+	display: block;
+	position: relative;
+	height: 100%;
+}
+
+#agenda {
+	height: 100%;
+}
+
+#banner div.date {
+	text-align: center;
+}
+
+div#buttonBar {
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	margin-right: 5px;
+}
+
+@media (max-width: 700px) {
+	:host div#buttonBar {
+		display: none!important;
+	}
+	:host #today {
+		display: none!important;
+	}
+}
+
+@media (min-width: 700px) {
+	:host #view_menu {
+		display: none!important;
+	}
+	:host #today_icon_button {
+		display: none!important;
+	}
+}
+
+@media (max-width: 768px) {
+	:host .visible-lg,
+	:host .visible-sm {
+		display: none!important;
+	}
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+	:host .visible-xs,
+	:host .visible-lg {
+		display: none!important;
+	}
+}
+
+@media (min-width: 1024px) {
+	:host .visible-xs,
+	:host .visible-sm {
+		display: none!important;
+	}
+}
+
+div#buttonBar paper-button.selected {
+	background: darkgray;
+	color:white;
+}
+
+div#weekdays {
+	display:flex;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	background: #eee;
+}
+
+div#weekdays .hours {
+	border-right: solid 1px #ccc;
+}
+
+div.weekday {
+	flex:1;
+	-webkit-flex: 1;
+	-ms-flex:1;
+	border-left: 1px solid #ccc;
+	border-top: none;
+	display: flex;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	align-items: center;
+	padding: 5px 5px;
+	text-align: center;
+	overflow: hidden;
+}
+
+div.weekday:nth-child(3) {
+	border-left: none;
+}
+
+span.day {
+	display: inline-block;
+	flex: 1;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+}
+
+span.date {
+	font-size: 2em;
+}
+
+div#all-day-events {
+	display: flex;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	-webkit-align-items: stretch;
+	align-items: stretch;
+	background: #f5f5f5;
+	position: relative;
+	border-top: solid 1px #ccc;
+	border-bottom: solid 1px #ddd;
+	position: relative;
+}
+
+div#all-day-events .all-day {
+	display: block;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex: 1;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	padding: 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+#scrollarea {
+	-webkit-flex: 1;
+	-ms-flex:1;
+	flex:1;
+	overflow: auto;
+	padding-right : 1px
+}
+
+div.hours {
+	position:relative;
+	width:25px;
+	font-family: "Oxygen Mono", Oxygen , monospace;
+	font-size: .8em;
+}
+
+div.hours > div {
+	position:absolute;
+	right:5px;
+}
+
+div.view, div.monthview {
+	position:relative;
+	-webkit-flex: 1;
+	-ms-flex:1;
+	flex:1;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display:flex;
+	-webkit-overflow-scrolling: touch;
+}
+
+canvas {
+	position: absolute;
+	top:0; left:0;
+	width:100%;
+	/* height: 1200px; */
+}
+
+div.days {
+	flex:1;
+	-webkit-flex: 1;
+	-ms-flex:1;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display:flex;
+}
+
+div.dayview {
+	z-index: 1;
+	flex:1;
+	-webkit-flex: 1;
+	-ms-flex:1;
+	/* height:1200px; */
+	overflow: hidden;
+	border-left: 1px solid #ccc;
+	position:relative;
+}
+
+.today {
+	background: rgba(255, 255, 224, 0.5);
+}
+
+div.monthview {
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction:column;
+}
+
+div.monthview > div.row {
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	border-top: 1px solid #ccc;
+	height: 100px;
+}
+
+#view div.day,
+#monthview div.day {
+	position: relative;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	height: 100%;
+	overflow: hidden;
+}
+
+div#monthview > div.row > div.day > .border {
+	border-left: 1px solid #ccc;
+	height: 100%;
+	width: 0;
+	position: absolute;
+}
+
+div.monthview .day-link {
+	cursor: pointer;
+}
+
+div.monthview .day-link:hover {
+	text-decoration: underline;
+}
+
+div#monthview > div.row > div.day:first-child .border {
+	border-left: none;
+}
+
+div.day.today {
+	font-weight: bold;
+	color: tomato;
+}
+
+div.day.d1 {
+	color: lightgray;
+	background: #f5f5f5;
+}
+
+div.day header {
+	text-align: left;
+	padding-left: 5px;
+}
+
+.event1  { background: #1ABC9C; }
+.event2  { background: #2ECC71; }
+.event3  { background: #3498DB; }
+.event4  { background: #9B59B6; }
+.event5  { background: #34495E; }
+.event6  { background: #33cc33; }
+.event7  { background: #E67E22; }
+.event8  { background: #E74C3C; }
+.event9  { background: #16A085; }
+.event10 { background: #27AE60; }
+.event11 { background: #2980B9; }
+.event12 { background: #8E44AD; }
+
+#view div.event {
+	position: absolute;
+	border-radius: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 0.8em;
+	margin: 0px 2px;
+	right: 0px;
+	left: 0px;
+	box-sizing: border-box;
+	border: 1px solid white;
+	color: white;
+	padding: 5px;
+	min-height: 40px;
+}
+
+div.eventMonth,
+#all-day-events .event {
+	position: relative;
+	border-radius: 3px;
+	padding: 2px 4px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.8em;
+	margin: 1px 2px;
+	color: white;
+	height: 15px;
+	cursor: pointer;
+}
+
+body.dragging div.eventMonth {
+	pointer-events: none;
+}
+
+div.eventMonth.notStart,
+#all-day-events .event.notStart {
+	margin-left: -1px;
+	border-bottom-left-radius: 0;
+	border-top-left-radius: 0;
+}
+
+div.eventMonth.notEnd,
+#all-day-events .event.notEnd {
+	margin-right: -1px;
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+}
+
+div.day paper-dropdown {
+	min-width: 100px;
+}
+
+paper-dropdown div.eventMonth.notStart {
+	margin-left: 0;
+}
+
+paper-dropdown div.eventMonth.notEnd {
+	margin-right: 0;
+}
+
+div.eventMonth > a.plusLink {
+	color: #507ad2;
+	text-decoration: underline;
+}
+
+div.event .time {
+	font-weight: 700;
+}
+
+div.event .title {
+	font-weight: 300;
+	display: block;
+}
+
+#scroll2 .scrollBar { left:5px; }
+
+#drag-avatar {
+	position: absolute;
+	display: none;
+	pointer-events: none;
+	border: solid 1px transparent;
+}
+
+.dragover {
+	background: #eeeeff;
+}
+
+/*===============*/
+/* PLANNING VIEW */
+/*===============*/
+
+#planning-view {
+	padding: 10px;
+}
+
+#planning-view > .day {
+	display: none;
+	padding: 5px 0 20px;
+	clear: left;
+}
+
+#planning-view > .day h2 {
+	font-size: 15px;
+	margin: 0;
+	float: left;
+	width: 250px;
+}
+
+#planning-view > .day.has-events {
+	display: block;
+}
+
+#planning-view > .day .events {
+	display: inline-block;
+}
+
+#planning-view .event > span.title {
+	display: inline;
+}
