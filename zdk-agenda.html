@@ -18,19 +18,19 @@
 		<div vertical layout id="agenda">
 			<core-toolbar id="banner">
 				<paper-icon-button icon="arrow-back" id="previous" on-tap="{{previous}}"></paper-icon-button>
-				<paper-button id="today" on-tap="{{today}}">[['Today' | i18n]]</paper-button>
+				<!--<paper-button id="today" on-tap="{{today}}">[['Today' | i18n]]</paper-button>-->
 				<paper-icon-button id="today_icon_button" icon="today" on-tap="{{today}}">[['Today' | i18n]]</paper-icon-button>
 				<paper-icon-button icon="arrow-forward" id="next" on-tap="{{next}}"></paper-icon-button>
 
 				<div class="date" flex></div>
 				<paper-menu-button id="view_menu">
 					<paper-icon-button icon="more-vert" noink></paper-icon-button>
-					<paper-dropdown class="dropdown">
+					<paper-dropdown class="dropdown" style="width:200px; right:0px;">
 						<core-menu class="menu">
 							<paper-item class="view-button day-button" on-tap="{{changeView}}" data-view="day">[['Day' | i18n]]</paper-item>
 							<paper-item class="view-button week-button selected" on-tap="{{changeView}}" data-view="week">[['Week' | i18n]]</paper-item>
 							<paper-item class="view-button month-button" on-tap="{{changeView}}" data-view="month">[['Month' | i18n]]</paper-item>
-							<paper-button class="view-button planning-button" on-tap="{{changeView}}" data-view="planning">[['Planning' | i18n]]</paper-button>
+							<paper-item class="view-button planning-button" on-tap="{{changeView}}" data-view="planning">[['Planning' | i18n]]</paper-item>
 						</core-menu>
 					</paper-dropdown>
 				</paper-menu-button>
