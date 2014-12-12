@@ -8,6 +8,7 @@
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../zdk-scrollarea/zdk-scrollarea.html">
 <link rel="import" href="./zdk-event.html">
 
 <script src="../momentjs/min/moment-with-locales.min.js"></script>
@@ -55,7 +56,7 @@
 			</div>
 			<div id="all-day-events">
 			</div>
-			<div id="scrollarea" forced="true" vanishing="true">
+			<zdk-scrollarea id="scrollarea" forced="true" vanishing="true">
 				<div id="view" class="view">
 					<canvas style="width:100%"></canvas>
 					<div class="hours"></div>
@@ -65,7 +66,7 @@
 				</div>
 				<div id="planning-view" touch-action="none">
 				</div>
-			</div>
+			</zdk-scrollarea>
 		</div>
 
 		<div id="drag-avatar">
@@ -118,26 +119,24 @@
 			viewChanged: function() {
 				switch (this.view) {
 					case 'planning':
-						this.$.agenda.querySelector(".view").style.display = "none";
-						this.$.agenda.querySelector(".monthview").style.display = "none";
+						this.$.view.style.display = "none";
+						this.$.monthview.style.display = "none";
 						this.$.weekdays.style.display = "none";
 						this.$['all-day-events'].style.display = "none";
 						this.$['planning-view'].style.display = '';
-						//obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
 						this.setTime(0);
 						break;
 					case 'month':
-						this.$.agenda.querySelector(".view").style.display = "none";
-						this.$.agenda.querySelector(".monthview").style.display = "";
+						this.$.view.style.display = "none";
+						this.$.monthview.style.display = "";
 						this.$.weekdays.style.display = "";
 						this.$.weekdays.querySelector(".hours").style.display = "none";
 						this.$['all-day-events'].style.display = "none";
 						this.$['planning-view'].style.display = 'none';
-						//obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
 						this.setTime(0);
 						break;
 					default:
-						this.$.agenda.querySelector(".view").style.display = "";
+						this.$.view.style.display = "";
 						this.$.weekdays.style.display = "";
 						this.$.weekdays.querySelector(".hours").style.display = "";
 						this.$.agenda.querySelector(".monthview").style.display = "none";
@@ -163,7 +162,7 @@
 
 				var that = this;
 
-				window.addEventListener("resize", function() 
+				window.addEventListener("resize", function()
 					{
 						that.drawEvents(false);
 						that.$.weekdays.style.paddingRight = that._getScrollBarWidth() + 'px';
@@ -192,9 +191,6 @@
 			},
 
 			domReady: function() {
-				//this.view = 'week';
-				// this.orderEvents();
-				// this.setTime(this.hourShow);
 				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
 				this.$['all-day-events'].style.paddingRight = this._getScrollBarWidth() + 'px';
 
@@ -662,7 +658,7 @@
 						var dateEnd = moment(this.events[i].end, moment.ISO_8601);
 
 						if (date.isSame(dayDate, 'day') ||
-								(d === 0 && date.isBefore(dayDate, 'day') && 
+								(d === 0 && date.isBefore(dayDate, 'day') &&
 								 (dateEnd.isAfter(dayDate, 'day')
 								 || (this.events[i].allDay && dateEnd.isSame(dayDate, 'day'))))) {
 							dayEvents.push(this.events[i]);
@@ -1151,11 +1147,11 @@
 									}
 									else {
 										eventElement.style.top = start.hour() * this.hourHeight +
-																						 start.minute() / 60 * this.hourHeight + 
+																						 start.minute() / 60 * this.hourHeight +
 																						 start.second() / 3600 * this.hourHeight +'px';
 									}
 
-									// Height of the element (duration) 
+									// Height of the element (duration)
 									if (!event.isStart) {
 										eventElement.style.height = Math.min(end.diff(dayDate, 'seconds') / 3600, 24) * this.hourHeight + 'px';
 									}
@@ -1199,8 +1195,8 @@
 
 			setTime: function(hour) {
 				var hour = (hour !== undefined && !isNaN(hour)) ? hour : this.hourShow;
-				//var view = this.$.agenda.querySelector("my-scrollarea");
-				//view.scrollTo(hour * this.hourHeight);
+				var view = this.$.scrollarea;
+				view.scrollTo(hour * this.hourHeight);
 			},
 
 			/**
