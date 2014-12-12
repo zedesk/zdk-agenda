@@ -78,7 +78,7 @@
 		</div>
 	</template>
 	<script>
-		Polymer({
+		Polymer('zdk-agenda', {
 			day: null,
 			lang: null,
 			hourHeight: 50,
@@ -163,7 +163,7 @@
 
 				var that = this;
 
-				window.addEventListener("resize", function() 
+				window.addEventListener("resize", function()
 					{
 						that.drawEvents(false);
 						that.$.weekdays.style.paddingRight = that._getScrollBarWidth() + 'px';
@@ -529,7 +529,7 @@
 						}.bind(this));
 
 						week.appendChild(dayElement);
-						fday.add('d', 1);
+						fday.add( 1, 'd');
 					}
 
 					var df = document.createDocumentFragment();
@@ -662,7 +662,7 @@
 						var dateEnd = moment(this.events[i].end, moment.ISO_8601);
 
 						if (date.isSame(dayDate, 'day') ||
-								(d === 0 && date.isBefore(dayDate, 'day') && 
+								(d === 0 && date.isBefore(dayDate, 'day') &&
 								 (dateEnd.isAfter(dayDate, 'day')
 								 || (this.events[i].allDay && dateEnd.isSame(dayDate, 'day'))))) {
 							dayEvents.push(this.events[i]);
@@ -1151,11 +1151,11 @@
 									}
 									else {
 										eventElement.style.top = start.hour() * this.hourHeight +
-																						 start.minute() / 60 * this.hourHeight + 
+																						 start.minute() / 60 * this.hourHeight +
 																						 start.second() / 3600 * this.hourHeight +'px';
 									}
 
-									// Height of the element (duration) 
+									// Height of the element (duration)
 									if (!event.isStart) {
 										eventElement.style.height = Math.min(end.diff(dayDate, 'seconds') / 3600, 24) * this.hourHeight + 'px';
 									}
@@ -1261,7 +1261,7 @@
 					return;
 				}
 
-				var view = evt.target.dataset.view;
+				var view = evt.target.getAttribute("data-view");
 				this.view = view;
 			},
 
