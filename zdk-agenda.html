@@ -764,6 +764,9 @@
 
 			drawEvents: function(compute) {
 
+				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
+				this.$['all-day-events'].style.paddingRight = this._getScrollBarWidth() + 'px';
+
 				if (compute !== false && this.events.length > 0) {
 					this.orderEvents();
 				}
