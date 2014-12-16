@@ -704,7 +704,7 @@
 							}
 
 							function clone(obj) {
-								if (obj == null || typeof(obj) != 'object')
+								if (obj === null || typeof(obj) != 'object')
 									return obj;
 
 								var temp = obj.constructor(); // changed
@@ -726,7 +726,7 @@
 								if (typeof events[i.format('YYYY-MM-DD')] === 'undefined') {
 									events[i.format('YYYY-MM-DD')] = [];
 								}
-								eventIndex = (i.day() === 1) ? events[i.format('YYYY-MM-DD')].length : eventIndex;
+								eventIndex = (i.weekday() === 0) ? events[i.format('YYYY-MM-DD')].length : eventIndex;
 
 								eventToInsert = clone(event);
 								eventToInsert.index = eventIndex;
@@ -737,7 +737,7 @@
 								isStart = false;
 							}
 							while (i.isBefore(endDate) ||
-								     (event.allDay && i.isSame(moment(endDate.format('YYYY-MM-DD'), 'YYYY-MM-DD'))));
+					    	(event.allDay && i.isSame(moment(endDate.format('YYYY-MM-DD'), 'YYYY-MM-DD'))));
 
 							if (eventToInsert) {
 								eventToInsert.isEnd = true;
@@ -933,7 +933,7 @@
 										div.classList.add('notStart');
 									}
 
-									if (event.isStart || date.day() === 1) {
+									if (event.isStart || date.weekday() === 0) {
 										div.innerHTML += '<span class="title">' + event.label + '</span>';
 									}
 
