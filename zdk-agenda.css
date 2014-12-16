@@ -10,6 +10,14 @@
 	height: 100%;
 }
 
+#agenda {
+	-moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
 #banner div.date {
 	text-align: center;
 }
@@ -230,7 +238,6 @@ div.monthview > div.row {
 	-webkit-flex: 1;
 	-ms-flex: 1;
 	flex: 1;
-	height: 100%;
 	overflow: hidden;
 }
 
@@ -312,7 +319,7 @@ div.eventMonth,
 	cursor: pointer;
 }
 
-body.dragging div.eventMonth {
+#agenda.dragging div.eventMonth {
 	pointer-events: none;
 }
 
@@ -349,11 +356,23 @@ div.eventMonth > a.plusLink {
 
 div.event .time {
 	font-weight: 700;
+	pointer-events: none;
 }
 
 div.event .title {
 	font-weight: 300;
 	display: block;
+	pointer-events: none;
+}
+
+div.eventMonth span.time {
+	font-weight: 700;
+	pointer-events: none;
+}
+
+div.eventMonth span.title {
+	font-weight: 300;
+	pointer-events: none;
 }
 
 #scroll2 .scrollBar { left:5px; }
