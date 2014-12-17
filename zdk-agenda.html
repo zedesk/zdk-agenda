@@ -12,7 +12,7 @@
 
 <script src="../momentjs/min/moment-with-locales.min.js"></script>
 
-<polymer-element name="zdk-agenda" attributes="date lang view hourHeight hourShow editable">
+<polymer-element name="zdk-agenda" attributes="date lang view hourHeight hourShow editable deleteButtons deleteIcon">
 	<template>
 		<link rel="stylesheet" href="zdk-agenda.css">
 		<div vertical layout id="agenda">
@@ -89,6 +89,8 @@
 			allDayEventsByDay: {},
 			dragging: false,
 			editable: true,
+			deleteButtons: false,
+			deleteIcon: 'close',
 
 			/**
 			 * Translations.
@@ -394,7 +396,7 @@
 							if (e.currentTarget.getAttribute('data-date')) {
 								this.fire('zdk-day-tap', {day: e.currentTarget.getAttribute('data-date')});
 							}
-						}.bind(this));
+						}.bind(this), true);
 
 						week.appendChild(dayElement);
 						fday.add( 1, 'd');
@@ -434,6 +436,7 @@
 				var df = document.createDocumentFragment();
 				var onTap = function(e) {
 					this.fire('zdk-day-tap', {day: e.target.getAttribute('data-date')});
+					e.preventDefault();
 				};
 
 				this.days = [];
@@ -460,7 +463,7 @@
 					dayElement.style.height = 24 * this.hourHeight + 'px';
 					df.appendChild(dayElement);
 
-					PolymerGestures.addEventListener(dayElement, 'tap', onTap.bind(this), false);
+					PolymerGestures.addEventListener(dayElement, 'tap', onTap.bind(this));
 				}
 
 				// Clear the view
@@ -908,13 +911,28 @@
 										div.classList.add('notEnd');
 									}
 
-									div.addEventListener('click', function() {
-										that.fire('zdk-event-click', {event: event});
-									}, false);
+									if (that.editable && that.deleteButtons && (event.isEnd || date.weekday() === 6)) {
+										var closeButton = document.createElement('paper-icon-button');
+										closeButton.setAttribute('icon', that.deleteIcon);
+										closeButton.className = 'close';
 
-									PolymerGestures.addEventListener(div, 'tap', function() {
+										PolymerGestures.addEventListener(closeButton, 'tap', function(e) {
+											that.fire('zdk-event-close', {event: event});
+											e.preventDefault();
+										});
+
+										div.appendChild(closeButton);
+									}
+
+									div.addEventListener('click', function(e) {
+										that.fire('zdk-event-click', {event: event});
+										e.preventDefault();
+									});
+
+									PolymerGestures.addEventListener(div, 'tap', function(e) {
 										that.fire('zdk-event-tap', {event: event});
-									}, false);
+										e.preventDefault();
+									});
 
 									return div;
 								}
@@ -943,7 +961,7 @@
 									div.classList.add('eventMonth');
 									div.innerHTML = '<a class="plusLink">+' + hiddenEvents + ' ' + this.i18n('more') + '</a>';
 									div.dataset.date = day.getAttribute("data-date");
-									PolymerGestures.addEventListener(div, 'tap', this.toggleDayDropdown.bind(this));
+									PolymerGestures.addEventListener(div, 'tap', this.toggleDayDropdown.bind(this), true);
 									df.appendChild(div);
 
 									var dropdownElement = document.createElement('paper-dropdown');
@@ -1018,7 +1036,7 @@
 										div.classList.add('notStart');
 									}
 
-									if (event.isStart || date.day() === 1 || that.view === 'day') {
+									if (event.isStart || date.weekday() === 0 || that.view === 'day') {
 										innerElement.push('<span class="title">', event.label, '</span>');
 									}
 
@@ -1026,13 +1044,28 @@
 										div.classList.add('notEnd');
 									}
 
+									if (that.editable && that.deleteButtons && (event.isEnd || date.weekday() === 6)) {
+										var closeButton = document.createElement('paper-icon-button');
+										closeButton.setAttribute('icon', that.deleteIcon);
+										closeButton.className = 'close';
+
+										PolymerGestures.addEventListener(closeButton, 'tap', function(e) {
+											that.fire('zdk-event-close', {event: event});
+											e.preventDefault();
+										});
+
+										div.appendChild(closeButton);
+									}
+
 									div.addEventListener('click', function() {
 										that.fire('zdk-event-click', {event: event});
-									}, false);
+										e.preventDefault();
+									});
 
-									PolymerGestures.addEventListener(div, 'tap', function() {
+									PolymerGestures.addEventListener(div, 'tap', function(e) {
 										that.fire('zdk-event-tap', {event: event});
-									}, false);
+										e.preventDefault();
+									});
 
 									div.innerHTML = innerElement.join('');
 
@@ -1144,15 +1177,29 @@
 
 									eventElement.innerHTML += innerElement.join('');
 
-									eventElement.addEventListener('click', function() {
+									if (that.editable && that.deleteButtons) {
+										var closeButton = document.createElement('paper-icon-button');
+										closeButton.setAttribute('icon', that.deleteIcon);
+										closeButton.className = 'close';
+
+										PolymerGestures.addEventListener(closeButton, 'tap', function(e) {
+											that.fire('zdk-event-close', {event: event});
+											e.preventDefault();
+										});
+
+										eventElement.appendChild(closeButton);
+									}
+
+									eventElement.addEventListener('click', function(e) {
 										that.fire('zdk-event-click', {event: event});
-									}, false);
+									});
 
-									PolymerGestures.addEventListener(eventElement, 'tap', function() {
+									PolymerGestures.addEventListener(eventElement, 'tap', function(e) {
 										that.fire('zdk-event-tap', {event: event});
-									}, false);
+										e.preventDefault();
+									});
 
-									if (event.isStart && event.isEnd && this.editable) {
+									if (event.isStart && this.editable) {
 
 										PolymerGestures.addEventListener(eventElement, 'trackstart', function(e) {
 											this.dragging = true;

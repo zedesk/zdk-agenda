@@ -309,7 +309,7 @@ div.eventMonth,
 	position: relative;
 	border-radius: 3px;
 	padding: 2px 4px;
-	overflow: hidden;
+	/*overflow: hidden;*/
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size: 0.8em;
@@ -335,6 +335,17 @@ div.eventMonth.notEnd,
 	margin-right: -1px;
 	border-bottom-right-radius: 0;
 	border-top-right-radius: 0;
+}
+
+div.eventMonth > paper-icon-button.close,
+#all-day-events .event > paper-icon-button.close,
+#view div.event > paper-icon-button.close {
+	display: block;
+	position: absolute;
+	top: -10px;
+	right: -5px;
+	color: white;
+	z-index: 0;
 }
 
 div.day paper-dropdown {
