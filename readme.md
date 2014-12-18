@@ -55,8 +55,8 @@ Event data can be changed by changing the value of the `events` attribute, for i
 myAgenda.events = [
     {
         label: 'An event',
-        start: '2014-11-11 09:00',
-        end: '2014-11-11 10:00',
+        start: '2014-11-11T09:00:00',
+        end: '2014-11-11T10:00:00',
         className: 'event1',
         allDay: false
     },
@@ -72,13 +72,13 @@ myAgenda.events = [
 
 An event item has such attributes:
 
-| Attribute     | Type (default) | Description                         |
-| ------------- | -------------- | ----------------------------------- |
-| `label`       | string         | Label to display                    |
-| `start`       | string         | Start datetime (`YYYY-MM-DD HH:mm`) |
-| `end`         | string         | End datetime (`YYYY-MM-DD HH:mm`)   |
-| `className`   | string         | Classname                           |
-| `allDay`      | boolean        | Is it an all-day event?             |
+| Attribute     | Type (default) | Description                      |
+| ------------- | -------------- | -------------------------------- |
+| `label`       | string         | Label to display                 |
+| `start`       | string         | Start datetime (ISO 8601 format) |
+| `end`         | string         | End datetime (ISO 8601 format)   |
+| `className`   | string         | Classname                        |
+| `allDay`      | boolean        | Is it an all-day event?          |
 
 # Events
 
@@ -86,6 +86,8 @@ An event item has such attributes:
 | ------------------- | ------------- | -------------     |
 | `zdk-event-click`   | Event data    | Click on a event. |
 | `zdk-event-changed` | Event data    | An event has been changed by drag&drop |
+| `zdk-event-close`   | Event data    | Click on the delete button of an event |
+| `zdk-day-click`     | Day date      | Click on a day    |
 
 # TODO
 
