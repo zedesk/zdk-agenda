@@ -12,7 +12,7 @@
 
 <script src="../momentjs/min/moment-with-locales.min.js"></script>
 
-<polymer-element name="zdk-agenda" attributes="date lang view hourHeight hourShow editable">
+<polymer-element name="zdk-agenda" attributes="date lang view hourHeight hourShow editable deleteButtons deleteIcon">
 	<template>
 		<link rel="stylesheet" href="zdk-agenda.css">
 		<div vertical layout id="agenda">
@@ -61,9 +61,9 @@
 					<div class="hours"></div>
 					<div class="days"></div>
 				</div>
-				<div id="monthview" class="monthview" style="height:600px" touch-action="none">
+				<div id="monthview" class="monthview" style="height:600px">
 				</div>
-				<div id="planning-view" touch-action="none">
+				<div id="planning-view">
 				</div>
 			</div>
 		</div>
@@ -78,7 +78,7 @@
 		</div>
 	</template>
 	<script>
-		Polymer({
+		Polymer('zdk-agenda', {
 			day: null,
 			lang: null,
 			hourHeight: 50,
@@ -89,6 +89,8 @@
 			allDayEventsByDay: {},
 			dragging: false,
 			editable: true,
+			deleteButtons: false,
+			deleteIcon: 'close',
 
 			/**
 			 * Translations.
@@ -123,7 +125,6 @@
 						this.$.weekdays.style.display = "none";
 						this.$['all-day-events'].style.display = "none";
 						this.$['planning-view'].style.display = '';
-						//obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
 						this.setTime(0);
 						break;
 					case 'month':
@@ -133,7 +134,6 @@
 						this.$.weekdays.querySelector(".hours").style.display = "none";
 						this.$['all-day-events'].style.display = "none";
 						this.$['planning-view'].style.display = 'none';
-						//obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
 						this.setTime(0);
 						break;
 					default:
@@ -163,7 +163,7 @@
 
 				var that = this;
 
-				window.addEventListener("resize", function() 
+				window.addEventListener("resize", function()
 					{
 						that.drawEvents(false);
 						that.$.weekdays.style.paddingRight = that._getScrollBarWidth() + 'px';
@@ -192,92 +192,14 @@
 			},
 
 			domReady: function() {
-				//this.view = 'week';
-				// this.orderEvents();
-				// this.setTime(this.hourShow);
 				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
 				this.$['all-day-events'].style.paddingRight = this._getScrollBarWidth() + 'px';
-
-				this.addEventListener('mousemove', function(e) {
-					if (this.dragging) {
-						switch (this.view) {
-							case 'planning':
-								break;
-							case 'month':
-								this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 + 'px';
-								this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 + 'px';
-								break;
-							default:
-								if (this.draggedEvent) {
-									var diffY = e.pageY - this.dragMouseInitialY;
-									this.draggedEvent.style.top = Math.min(Math.max(0, Math.round((this.dragInitialY + diffY) / (this.hourHeight / 4)) * this.hourHeight / 4), 24 * this.hourHeight)  + 'px';
-								}
-						}
-					}
-				}.bind(this));
-
-				document.addEventListener('mouseup', function(e) {
-					if (this.dragging) {
-						switch (this.view) {
-							case 'planning':
-								break;
-							case 'month':
-								this.dragging = false;
-								this.classList.add('dragging');
-								this.$['drag-avatar'].style.display = 'none';
-
-								[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
-									day.classList.remove('dragover');
-								});
-
-								var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
-								[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
-									event.style.opacity = 1;
-								});
-								break;
-							default:
-								if (this.draggedEvent) {
-									this.dragging = false;
-
-									if (this.events.length > this.draggedEvent.getAttribute('data-num')) {
-										var event = this.events[this.draggedEvent.getAttribute('data-num')];
-
-										var eventStart = moment(event.start, moment.ISO_8601);
-										var eventEnd = moment(event.end, moment.ISO_8601);
-
-										var eventPos = parseInt(this.draggedEvent.style.top.replace(/[^-\d\.]/g, ''));
-
-										var newStart = moment(eventStart);
-
-										newStart.hours(Math.floor(eventPos / this.hourHeight));
-										newStart.minutes(Math.floor((eventPos / this.hourHeight) * 60 % 60));
-
-										// Is the new start date different than the old one ?
-										if (!eventStart.isSame(newStart)) {
-											// Difference between new date and event start
-											var diff = newStart.diff(eventStart);
-
-											eventEnd.add(diff);
-
-											event.start = newStart.toISOString();
-											event.end = eventEnd.toISOString();
-
-											this.fire('zdk-event-changed', {event: event});
-
-											this.drawEvents();
-										}
-									}
-
-									this.draggedEvent = null;
-								}
-						}
-					}
-
-				}.bind(this));
 			},
 
 			langChanged: function(oldValue, newValue) {
-				if (!oldValue) return;
+				if (!oldValue) {
+					return;
+				}
 				this.lang = newValue ? newValue : navigator.language || navigator.userLanguage;
 				this.draw();
 			},
@@ -464,72 +386,17 @@
 						var dayElement = document.createElement('div');
 						dayElement.className = 'day ' + day.type;
 						dayElement.setAttribute('data-date', day.data);
-						dayElement.setAttribute('touch-action', 'none');
 
 						dayElement.innerHTML = '<div class="border"></div><header><span class="day-link">' + day.date + '<span></header>';
 
-						dayElement.addEventListener('mousemove', function(e) {
-							if (this.dragging) {
-								var date = e.currentTarget.getAttribute('data-date');
-								var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
-
-								if (date && eventIndex && this.events.length > eventIndex) {
-
-									var date = moment(date, 'YYYY-MM-DD');
-									var event = this.events[eventIndex];
-									var start = moment(event.start, moment.ISO_8601);
-									var end = moment(event.end, moment.ISO_8601);
-
-									var diff = end.diff(start, 'days') + 1;
-
-									[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
-										var dayDate = moment(day.getAttribute('data-date'), 'YYYY-MM-DD');
-
-										if (dayDate.diff(date, 'days') >= 0 && dayDate.diff(date, 'days') < diff) {
-											day.classList.add('dragover');
-										}
-										else {
-											day.classList.remove('dragover');
-										}
-									});
-								}
+						PolymerGestures.addEventListener(dayElement, 'tap', function(e) {
+							if (e.currentTarget.getAttribute('data-date')) {
+								this.fire('zdk-day-click', {day: e.currentTarget.getAttribute('data-date')});
 							}
-							e.preventDefault();
-						}.bind(this));
-
-						dayElement.addEventListener('mouseup', function(e) {
-							if (this.dragging) {
-								var dayDate = moment(e.currentTarget.getAttribute('data-date'), 'YYYY-MM-DD');
-
-								if (this.events.length > this.$['drag-avatar'].getAttribute('data-num')) {
-									var event = this.events[this.$['drag-avatar'].getAttribute('data-num')];
-
-									var eventStart = moment(event.start, moment.ISO_8601);
-									var eventEnd = moment(event.end, moment.ISO_8601);
-
-									var dayStart = moment(eventStart.format('YYYY-MM-DD'), 'YYYY-MM-DD');
-
-									// Is the new start date different than the old one ?
-									if (!eventStart.isSame(dayDate, 'day')) {
-										// Difference between new date and event start
-										var diff = dayDate.diff(dayStart, 'days');
-
-										eventStart.add(diff, 'days');
-										eventEnd.add(diff, 'days');
-
-										event.start = eventStart.toISOString();
-										event.end = eventEnd.toISOString();
-
-										this.fire('zdk-event-changed', {event: event});
-
-										this.drawEvents();
-									}
-								}
-							}
-						}.bind(this));
+						}.bind(this), false);
 
 						week.appendChild(dayElement);
-						fday.add('d', 1);
+						fday.add( 1, 'd');
 					}
 
 					var df = document.createDocumentFragment();
@@ -563,8 +430,15 @@
 				var days = this.$.agenda.querySelector(".view .days");
 				var content = [];
 
+				var df = document.createDocumentFragment();
+				var onTap = function(e) {
+					this.fire('zdk-day-click', {day: e.target.getAttribute('data-date')});
+					e.stopPropagation();
+				};
+
 				this.days = [];
-				for (var i = 0; i < 7; i++) {
+				var i;
+				for (i = 0; i < 7; i++) {
 					day = moment(fday).add(i, 'd');
 					type = "";
 					if (day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")) {
@@ -580,16 +454,29 @@
 						type: type
 					};
 					this.days.push(day);
-					content.push('<div class="dayview ', day.type, '"  data-date="', day.data, '" style="height:', (24 * this.hourHeight), 'px"></div>');
+
+					var dayElement = document.createElement('div');
+					dayElement.className = 'dayview ' + day.type;
+					dayElement.setAttribute('data-date', day.data);
+					dayElement.style.height = 24 * this.hourHeight + 'px';
+					df.appendChild(dayElement);
+
+					PolymerGestures.addEventListener(dayElement, 'tap', onTap.bind(this));
 				}
-				days.innerHTML = content.join('');
+
+				// Clear the view
+				while (days.firstChild) {
+					days.removeChild(days.firstChild);
+				}
+
+				days.appendChild(df);
 
 				// Draw all-day events container
 				var allDayEvents = this.$['all-day-events'];
 				var fdayA = moment(this.day).startOf("week");
 				var allDayEventsContent = ['<div class="hours"></div>'];
 
-				for (var i = 0; i < 7; i++) {
+				for (i = 0; i < 7; i++) {
 					day = moment(fdayA).add(i, 'd');
 					type = "";
 					if (day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")) {
@@ -662,9 +549,12 @@
 						var dateEnd = moment(this.events[i].end, moment.ISO_8601);
 
 						if (date.isSame(dayDate, 'day') ||
-								(d === 0 && date.isBefore(dayDate, 'day') && 
-								 (dateEnd.isAfter(dayDate, 'day')
-								 || (this.events[i].allDay && dateEnd.isSame(dayDate, 'day'))))) {
+								(d === 0 && date.isBefore(dayDate, 'day') &&
+								 (dateEnd.isAfter(dayDate, 'day') || 
+								  (this.events[i].allDay && dateEnd.isSame(dayDate, 'day'))
+								 )
+								)
+							) {
 							dayEvents.push(this.events[i]);
 						}
 						else if (date.isAfter(dayDate, 'day')) {
@@ -704,7 +594,7 @@
 							}
 
 							function clone(obj) {
-								if (obj == null || typeof(obj) != 'object')
+								if (obj === null || typeof(obj) != 'object')
 									return obj;
 
 								var temp = obj.constructor(); // changed
@@ -726,7 +616,7 @@
 								if (typeof events[i.format('YYYY-MM-DD')] === 'undefined') {
 									events[i.format('YYYY-MM-DD')] = [];
 								}
-								eventIndex = (i.day() === 1) ? events[i.format('YYYY-MM-DD')].length : eventIndex;
+								eventIndex = (i.weekday() === 0) ? events[i.format('YYYY-MM-DD')].length : eventIndex;
 
 								eventToInsert = clone(event);
 								eventToInsert.index = eventIndex;
@@ -737,7 +627,7 @@
 								isStart = false;
 							}
 							while (i.isBefore(endDate) ||
-								     (event.allDay && i.isSame(moment(endDate.format('YYYY-MM-DD'), 'YYYY-MM-DD'))));
+					    	(event.allDay && i.isSame(moment(endDate.format('YYYY-MM-DD'), 'YYYY-MM-DD'))));
 
 							if (eventToInsert) {
 								eventToInsert.isEnd = true;
@@ -764,11 +654,15 @@
 
 			drawEvents: function(compute) {
 
+				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
+				this.$['all-day-events'].style.paddingRight = this._getScrollBarWidth() + 'px';
+
 				if (compute !== false && this.events.length > 0) {
 					this.orderEvents();
 				}
 
 				var that = this;
+				var events;
 				switch (this.view) {
 
 					case 'planning':
@@ -782,7 +676,7 @@
 							this.eventsByDay = this._computeEvents(this.$['planning-view'].querySelectorAll(".day"));
 						}
 
-						var events = this.eventsByDay;
+						events = this.eventsByDay;
 
 						// We draw the events
 						[].slice.call(this.$['planning-view'].querySelectorAll(".day")).forEach(function(day) {
@@ -840,7 +734,7 @@
 
 					case 'month':
 						if (!this.$.agenda.querySelectorAll(".monthview .day").length) {
-							setTimeout( function() { that.drawEvents(compute) }, 0);
+							setTimeout( function() { that.drawEvents(compute); }, 0);
 							return;
 						}
 
@@ -856,7 +750,7 @@
 							this.eventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".monthview .day"));
 						}
 
-						var events = this.eventsByDay;
+						events = this.eventsByDay;
 
 						// We draw the events
 						[].slice.call(this.$.agenda.querySelectorAll(".monthview .day")).forEach( function(day) {
@@ -872,14 +766,13 @@
 								var index = 0;
 								var maxEvents = 3;
 
-								function displayEvent(event) {
+								var displayEvent = function(event) {
 									var div = document.createElement('div');
 									div.className = event.className;
 									div.classList.add('eventMonth');
-									div.setAttribute('touch-action', 'none');
 
 									if (that.editable) {
-										div.addEventListener('mousedown', function(e) {
+										PolymerGestures.addEventListener(div, 'trackstart', function(e) {
 
 											this.dragging = true;
 											this.classList.add('dragging');
@@ -911,6 +804,85 @@
 											e.preventDefault();
 											//return false;*/
 										}.bind(that));
+
+										PolymerGestures.addEventListener(div, 'track', function(e) {
+											if (this.dragging) {
+												this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 + 'px';
+												this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 + 'px';
+
+												var sdate = this.shadowRoot.elementFromPoint(e.pageX, e.pageY).getAttribute('data-date');
+												var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
+
+												if (sdate && eventIndex && this.events.length > eventIndex) {
+
+													var date = moment(sdate, 'YYYY-MM-DD');
+													var event = this.events[eventIndex];
+													var start = moment(event.start, moment.ISO_8601);
+													var end = moment(event.end, moment.ISO_8601);
+
+													var diff = end.diff(start, 'days') + 1;
+
+													[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
+														var dayDate = moment(day.getAttribute('data-date'), 'YYYY-MM-DD');
+
+														if (dayDate.diff(date, 'days') >= 0 && dayDate.diff(date, 'days') < diff) {
+															day.classList.add('dragover');
+														}
+														else {
+															day.classList.remove('dragover');
+														}
+													});
+												}
+											}
+										}.bind(that));
+
+										PolymerGestures.addEventListener(div, 'trackend', function(e) {
+
+											if (this.dragging) {
+
+												this.classList.remove('dragging');
+
+												var dayDate = moment(e.relatedTarget.getAttribute('data-date'), 'YYYY-MM-DD');
+
+												if (this.events.length > this.$['drag-avatar'].getAttribute('data-num')) {
+													var event = this.events[this.$['drag-avatar'].getAttribute('data-num')];
+
+													var eventStart = moment(event.start, moment.ISO_8601);
+													var eventEnd = moment(event.end, moment.ISO_8601);
+
+													var dayStart = moment(eventStart.format('YYYY-MM-DD'), 'YYYY-MM-DD');
+
+													// Is the new start date different than the old one ?
+													if (!eventStart.isSame(dayDate, 'day')) {
+														// Difference between new date and event start
+														var diff = dayDate.diff(dayStart, 'days');
+
+														eventStart.add(diff, 'days');
+														eventEnd.add(diff, 'days');
+
+														event.start = eventStart.toISOString();
+														event.end = eventEnd.toISOString();
+
+														this.fire('zdk-event-changed', {event: event});
+
+														this.drawEvents();
+													}
+												}
+
+												this.dragging = false;
+												this.classList.add('dragging');
+												this.$['drag-avatar'].style.display = 'none';
+
+												[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
+													day.classList.remove('dragover');
+												});
+
+												var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
+												[].slice.call(this.$.agenda.querySelectorAll('.day div.eventMonth[data-num="' + eventIndex + '"]')).forEach(function(event) {
+													event.style.opacity = 1;
+												});
+											}
+										}.bind(that));
 									}
 
 									var date = moment(day.getAttribute("data-date"), 'YYYY-MM-DD');
@@ -933,7 +905,7 @@
 										div.classList.add('notStart');
 									}
 
-									if (event.isStart || date.day() === 1) {
+									if (event.isStart || date.weekday() === 0) {
 										div.innerHTML += '<span class="title">' + event.label + '</span>';
 									}
 
@@ -941,12 +913,26 @@
 										div.classList.add('notEnd');
 									}
 
-									div.addEventListener('click', function() {
+									if (that.editable && that.deleteButtons && (event.isEnd || date.weekday() === 6)) {
+										var closeButton = document.createElement('paper-icon-button');
+										closeButton.setAttribute('icon', that.deleteIcon);
+										closeButton.className = 'close';
+
+										PolymerGestures.addEventListener(closeButton, 'tap', function(e) {
+											that.fire('zdk-event-close', {event: event});
+											e.stopPropagation();
+										});
+
+										div.appendChild(closeButton);
+									}
+
+									PolymerGestures.addEventListener(div, 'tap', function(e) {
 										that.fire('zdk-event-click', {event: event});
-									}, false);
+										e.stopPropagation();
+									});
 
 									return div;
-								}
+								};
 								var hiddenEvents = 0;
 								dayEvents.forEach( function(event, i) {
 
@@ -972,7 +958,7 @@
 									div.classList.add('eventMonth');
 									div.innerHTML = '<a class="plusLink">+' + hiddenEvents + ' ' + this.i18n('more') + '</a>';
 									div.dataset.date = day.getAttribute("data-date");
-									div.addEventListener('click', this.toggleDayDropdown.bind(this));
+									PolymerGestures.addEventListener(div, 'tap', this.toggleDayDropdown.bind(this), true);
 									df.appendChild(div);
 
 									var dropdownElement = document.createElement('paper-dropdown');
@@ -1009,7 +995,7 @@
 
 						if (compute !== false) {
 							this.allDayEventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), true, false);
-							this.eventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), false);;
+							this.eventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), false);
 						}
 
 						var allDayEvents = this.allDayEventsByDay;
@@ -1026,7 +1012,7 @@
 
 								var index = 0;
 
-								function displayEvent(event) {
+								var displayEvent = function(event) {
 									var div = document.createElement('div');
 									div.className = event.className;
 									div.classList.add('event');
@@ -1047,7 +1033,7 @@
 										div.classList.add('notStart');
 									}
 
-									if (event.isStart || date.day() === 1 || that.view === 'day') {
+									if (event.isStart || date.weekday() === 0 || that.view === 'day') {
 										innerElement.push('<span class="title">', event.label, '</span>');
 									}
 
@@ -1055,14 +1041,28 @@
 										div.classList.add('notEnd');
 									}
 
-									div.addEventListener('click', function() {
+									if (that.editable && that.deleteButtons && (event.isEnd || date.weekday() === 6)) {
+										var closeButton = document.createElement('paper-icon-button');
+										closeButton.setAttribute('icon', that.deleteIcon);
+										closeButton.className = 'close';
+
+										PolymerGestures.addEventListener(closeButton, 'tap', function(e) {
+											that.fire('zdk-event-close', {event: event});
+											e.stopPropagation();
+										});
+
+										div.appendChild(closeButton);
+									}
+
+									PolymerGestures.addEventListener(div, 'tap', function(e) {
 										that.fire('zdk-event-click', {event: event});
-									}, false);
+										e.stopPropagation();
+									});
 
 									div.innerHTML = innerElement.join('');
 
 									return div;
-								}
+								};
 								dayEvents.forEach( function(event) {
 
 									while (parseInt(event.index) > index && index < maxEvents) {
@@ -1081,7 +1081,7 @@
 							}
 						}.bind(this));
 
-						var events = this.eventsByDay;
+						events = this.eventsByDay;
 
 						[].slice.call(this.$.agenda.querySelectorAll(".view .dayview")).forEach( function(day) {
 
@@ -1109,8 +1109,10 @@
 
 									var innerElement = [];
 
+									var time;
+
 									if (event.isStart) {
-										var time = moment(event.start, moment.ISO_8601).format('HH:mm');
+										time = moment(event.start, moment.ISO_8601).format('HH:mm');
 										innerElement.push('<span class="time">', time, '</span> ');
 									}
 									else {
@@ -1118,7 +1120,7 @@
 									}
 
 									if (event.isEnd) {
-										var time = moment(event.end, moment.ISO_8601).format('HH:mm');
+										time = moment(event.end, moment.ISO_8601).format('HH:mm');
 										innerElement.push('- <span class="time">', time, '</span> ');
 									}
 									else {
@@ -1151,11 +1153,11 @@
 									}
 									else {
 										eventElement.style.top = start.hour() * this.hourHeight +
-																						 start.minute() / 60 * this.hourHeight + 
+																						 start.minute() / 60 * this.hourHeight +
 																						 start.second() / 3600 * this.hourHeight +'px';
 									}
 
-									// Height of the element (duration) 
+									// Height of the element (duration)
 									if (!event.isStart) {
 										eventElement.style.height = Math.min(end.diff(dayDate, 'seconds') / 3600, 24) * this.hourHeight + 'px';
 									}
@@ -1169,22 +1171,83 @@
 
 									eventElement.innerHTML += innerElement.join('');
 
-									eventElement.addEventListener("click", function() {
+									if (that.editable && that.deleteButtons) {
+										var closeButton = document.createElement('paper-icon-button');
+										closeButton.setAttribute('icon', that.deleteIcon);
+										closeButton.className = 'close';
+
+										PolymerGestures.addEventListener(closeButton, 'tap', function(e) {
+											that.fire('zdk-event-close', {event: event});
+											e.stopPropagation();
+										});
+
+										eventElement.appendChild(closeButton);
+									}
+
+									PolymerGestures.addEventListener(eventElement, 'tap', function(e) {
 										that.fire('zdk-event-click', {event: event});
-									}, false);
+										e.stopPropagation();
+									});
 
-									if (event.isStart && event.isEnd && this.editable) {
+									if (event.isStart && this.editable) {
 
-										eventElement.addEventListener("mousedown", function(e) {
+										PolymerGestures.addEventListener(eventElement, 'trackstart', function(e) {
 											this.dragging = true;
 											this.classList.add('dragging');
 
-											this.draggedEvent = e.currentTarget;
-											this.dragMouseInitialY = e.pageY;
+											this.draggedEvent = e.target;
+											this.dragMouseInitialY = e.clientY;
 											this.dragInitialY = parseInt(this.draggedEvent.style.top.replace(/[^-\d\.]/g, ''));
 
 											e.preventDefault();
 										}.bind(this), false);
+
+										PolymerGestures.addEventListener(eventElement, 'track', function(e) {
+											if (this.dragging) {
+												if (this.draggedEvent) {
+													var diffY = e.clientY - this.dragMouseInitialY;
+													this.draggedEvent.style.top = Math.min(Math.max(0, Math.round((this.dragInitialY + diffY) / (this.hourHeight / 4)) * this.hourHeight / 4), 24 * this.hourHeight)  + 'px';
+												}
+											}
+											e.preventDefault();
+										}.bind(this));
+
+										PolymerGestures.addEventListener(eventElement, 'trackend', function(e) {
+											if (this.dragging && this.draggedEvent) {
+												this.dragging = false;
+
+												if (this.events.length > this.draggedEvent.getAttribute('data-num')) {
+													var event = this.events[this.draggedEvent.getAttribute('data-num')];
+
+													var eventStart = moment(event.start, moment.ISO_8601);
+													var eventEnd = moment(event.end, moment.ISO_8601);
+
+													var eventPos = parseInt(this.draggedEvent.style.top.replace(/[^-\d\.]/g, ''));
+
+													var newStart = moment(eventStart);
+
+													newStart.hours(Math.floor(eventPos / this.hourHeight));
+													newStart.minutes(Math.floor((eventPos / this.hourHeight) * 60 % 60));
+
+													// Is the new start date different than the old one ?
+													if (!eventStart.isSame(newStart)) {
+														// Difference between new date and event start
+														var diff = newStart.diff(eventStart);
+
+														eventEnd.add(diff);
+
+														event.start = newStart.toISOString();
+														event.end = eventEnd.toISOString();
+
+														this.fire('zdk-event-changed', {event: event});
+
+														this.drawEvents();
+													}
+												}
+
+												this.draggedEvent = null;
+											}
+										}.bind(this));
 									}
 
 									df.appendChild(eventElement);
@@ -1198,9 +1261,8 @@
 			},
 
 			setTime: function(hour) {
-				var hour = (hour !== undefined && !isNaN(hour)) ? hour : this.hourShow;
-				//var view = this.$.agenda.querySelector("my-scrollarea");
-				//view.scrollTo(hour * this.hourHeight);
+				hour = (hour !== undefined && !isNaN(hour)) ? hour : this.hourShow;
+				this.$.scrollarea.scrollTop = hour * this.hourHeight;
 			},
 
 			/**
@@ -1261,7 +1323,7 @@
 					return;
 				}
 
-				var view = evt.target.dataset.view;
+				var view = evt.target.getAttribute("data-view");
 				this.view = view;
 			},
 
@@ -1281,7 +1343,7 @@
 
 			addEvent: function(obj) {
 				this.events.push(obj);
-			},
+			}
 		});
 	// })();
 	</script>

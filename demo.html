@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>Agenda demo</title>
-
+	<meta charset="utf-8" >
 	<script src="../webcomponentsjs/webcomponents.min.js"></script>
 
 	<link rel="import" href="zdk-agenda.html">
@@ -22,7 +22,7 @@
 
 <body unresolved>
 
-	<zdk-agenda lang="fr" hourHeight="40" hourShow="8" view="month">
+	<zdk-agenda lang="en-us" hourHeight="40" hourShow="8" view="month" editable="true" deleteButtons="true">
 		<!-- All-day events -->
 		<zdk-event class="event1" start="2014-11-12" end="2014-11-17" all-day="true" label="Some work"></zdk-event>
 		<zdk-event class="event2" start="2014-11-12" end="2014-11-12" all-day="true" label="A lot of work to do"></zdk-event>
@@ -58,6 +58,17 @@
 		}
 		window.addEventListener("polymer-ready", function() {
 			document.querySelector("zdk-agenda").addEventListener("zdk-event-click", function(evt) {
+				console.log('zdk-event-click');
+				var event = evt.detail.event;
+				console.log(event);
+			}, false);
+
+			document.querySelector("zdk-agenda").addEventListener("zdk-day-click", function(evt) {
+				console.log('zdk-day-click, ' + evt.detail.day);
+			}, false);
+
+			document.querySelector("zdk-agenda").addEventListener("zdk-event-close", function(evt) {
+				console.log('zdk-event-close');
 				var event = evt.detail.event;
 				console.log(event);
 			}, false);

@@ -13,7 +13,7 @@
 		<link href='http://fonts.googleapis.com/css?family=Oxygen+Mono|Oxygen:400,700,300' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" href="style.css">
 
-		<script src="../platform/platform.js"></script>
+		<script src="../webcomponentsjs/webcomponents.min.js"></script>
 		<script src="../momentjs/min/moment-with-locales.min.js"></script>
 
 		<link rel="import" href="zdk-agenda.html">
@@ -22,17 +22,22 @@
 	</head>
 	<body unresolved>
 		<zdk-agenda i18n="en-gb" hourHeight="40" hourShow="8" view="week" style="width:100%;height:600px">
-			<zdk-event class="event4" date="2014-08-12" time="09:00" duration="01:00" label="Event 2">Description of the event</zdk-event>
-			<zdk-event class="event6" date="2014-08-12" time="10:30" duration="00:30" label="Shopping Delivery"></zdk-event>
-			<zdk-event class="event8" date="2014-08-14" time="09:30" duration="01:00" label="Stand Up"></zdk-event>
-			<zdk-event class="event1" date="2014-08-11" time="14:00" duration="02:30" label="Event 1 suite"></zdk-event>
-			<zdk-event class="event1" date="2014-08-11" time="09:00" duration="02:00" label="Event 1"></zdk-event>
-			<zdk-event class="ro event8" date="2014-08-13" time="14:00" duration="01:30" label="Event 2"></zdk-event>
-			<zdk-event class="event6" date="2014-08-13" time="14:00" duration="02:00" label="Event 1"></zdk-event>
-			<zdk-event class="event10" date="2014-08-13" time="15:00" duration="01:00" label="Event 3"></zdk-event>
-			<zdk-event class="event10" date="2014-08-13" time="17:00" duration="24:00" label="Event 3"></zdk-event>
-			<zdk-event class="ro event10" date="2014-08-13" time="18:00" duration="01:30" label="Event 3"></zdk-event>
-			<zdk-event class="ro event10" date="2014-08-13" time="19:00" duration="01:00" label="Event 3"></zdk-event>
+			<zdk-event class="event1" start="2014-12-12" end="2014-12-12" all-day="true" label="Some work"></zdk-event>
+		<zdk-event class="event2" start="2014-12-12" end="2014-12-12" all-day="true" label="A lot of work to do"></zdk-event>
+		<zdk-event class="event3" start="2014-12-12" end="2014-12-12" all-day="true" label="A task to finish"></zdk-event>
+
+		<zdk-event class="event4" start="2014-12-12T10:30:00Z" end="2014-12-12T11:00:00Z" label="Shopping Delivery"></zdk-event>
+		<zdk-event class="event5" start="2014-12-14T09:30:00Z" end="2014-12-14T10:00:00Z" label="Stand Up"></zdk-event>
+		<zdk-event class="event6" start="2014-12-11T14:00:00Z" end="2014-12-11T15:00:00Z" label="Event 1 suite"></zdk-event>
+		<zdk-event class="event7" start="2014-12-11T09:00:00Z" end="2014-12-11T15:00:00Z" label="Event 1"></zdk-event>
+		<zdk-event class="event8" start="2014-12-13T14:00:00Z" end="2014-12-13T15:00:00Z" label="Event 2"></zdk-event>
+		<zdk-event class="event9" start="2014-12-13T14:00:00Z" end="2014-12-13T15:00:00Z" label="Event 1"></zdk-event>
+		<zdk-event class="event10" start="2014-12-13T15:00:00Z" end="2014-12-13T20:00:00Z" label="Event 3"></zdk-event>
+		<zdk-event class="event11" start="2014-12-13T17:00:00Z" end="2014-12-13T18:00:00Z" label="Event 3"></zdk-event>
+		<zdk-event class="event12" start="2014-12-14T14:00:00Z" end="2014-12-14T15:00:00Z" label="Event 2"></zdk-event>
+		<zdk-event class="event1" start="2014-12-14T14:00:00Z" end="2014-12-14T15:00:00Z" label="Event 1"></zdk-event>
+		<zdk-event class="event2" start="2014-12-14T15:00:00Z" end="2014-12-14T15:15:00Z" label="Event 3"></zdk-event>
+		<zdk-event class="event5" start="2014-12-01T15:00:00Z" end="2014-12-01T19:00:00Z" label="Event 3"></zdk-event>
 		</zdk-agenda>
 		<button onclick="addEvent()">add Event</button>
 		<button onclick="editEvent(1)">edit Event 1</button>
