@@ -125,7 +125,6 @@
 						this.$.weekdays.style.display = "none";
 						this.$['all-day-events'].style.display = "none";
 						this.$['planning-view'].style.display = '';
-						//obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
 						this.setTime(0);
 						break;
 					case 'month':
@@ -135,7 +134,6 @@
 						this.$.weekdays.querySelector(".hours").style.display = "none";
 						this.$['all-day-events'].style.display = "none";
 						this.$['planning-view'].style.display = 'none';
-						//obj.$.agenda.querySelector("my-scrollarea").scrollTo(0);
 						this.setTime(0);
 						break;
 					default:
@@ -194,15 +192,14 @@
 			},
 
 			domReady: function() {
-				//this.view = 'week';
-				// this.orderEvents();
-				// this.setTime(this.hourShow);
 				this.$.weekdays.style.paddingRight = this._getScrollBarWidth() + 'px';
 				this.$['all-day-events'].style.paddingRight = this._getScrollBarWidth() + 'px';
 			},
 
 			langChanged: function(oldValue, newValue) {
-				if (!oldValue) return;
+				if (!oldValue) {
+					return;
+				}
 				this.lang = newValue ? newValue : navigator.language || navigator.userLanguage;
 				this.draw();
 			},
@@ -440,7 +437,8 @@
 				};
 
 				this.days = [];
-				for (var i = 0; i < 7; i++) {
+				var i;
+				for (i = 0; i < 7; i++) {
 					day = moment(fday).add(i, 'd');
 					type = "";
 					if (day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")) {
@@ -478,7 +476,7 @@
 				var fdayA = moment(this.day).startOf("week");
 				var allDayEventsContent = ['<div class="hours"></div>'];
 
-				for (var i = 0; i < 7; i++) {
+				for (i = 0; i < 7; i++) {
 					day = moment(fdayA).add(i, 'd');
 					type = "";
 					if (day.format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")) {
@@ -552,8 +550,11 @@
 
 						if (date.isSame(dayDate, 'day') ||
 								(d === 0 && date.isBefore(dayDate, 'day') &&
-								 (dateEnd.isAfter(dayDate, 'day')
-								 || (this.events[i].allDay && dateEnd.isSame(dayDate, 'day'))))) {
+								 (dateEnd.isAfter(dayDate, 'day') || 
+								  (this.events[i].allDay && dateEnd.isSame(dayDate, 'day'))
+								 )
+								)
+							) {
 							dayEvents.push(this.events[i]);
 						}
 						else if (date.isAfter(dayDate, 'day')) {
@@ -661,6 +662,7 @@
 				}
 
 				var that = this;
+				var events;
 				switch (this.view) {
 
 					case 'planning':
@@ -674,7 +676,7 @@
 							this.eventsByDay = this._computeEvents(this.$['planning-view'].querySelectorAll(".day"));
 						}
 
-						var events = this.eventsByDay;
+						events = this.eventsByDay;
 
 						// We draw the events
 						[].slice.call(this.$['planning-view'].querySelectorAll(".day")).forEach(function(day) {
@@ -732,7 +734,7 @@
 
 					case 'month':
 						if (!this.$.agenda.querySelectorAll(".monthview .day").length) {
-							setTimeout( function() { that.drawEvents(compute) }, 0);
+							setTimeout( function() { that.drawEvents(compute); }, 0);
 							return;
 						}
 
@@ -748,7 +750,7 @@
 							this.eventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".monthview .day"));
 						}
 
-						var events = this.eventsByDay;
+						events = this.eventsByDay;
 
 						// We draw the events
 						[].slice.call(this.$.agenda.querySelectorAll(".monthview .day")).forEach( function(day) {
@@ -764,7 +766,7 @@
 								var index = 0;
 								var maxEvents = 3;
 
-								function displayEvent(event) {
+								var displayEvent = function(event) {
 									var div = document.createElement('div');
 									div.className = event.className;
 									div.classList.add('eventMonth');
@@ -935,7 +937,7 @@
 									});
 
 									return div;
-								}
+								};
 								var hiddenEvents = 0;
 								dayEvents.forEach( function(event, i) {
 
@@ -998,7 +1000,7 @@
 
 						if (compute !== false) {
 							this.allDayEventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), true, false);
-							this.eventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), false);;
+							this.eventsByDay = this._computeEvents(this.$.agenda.querySelectorAll(".view .dayview"), false);
 						}
 
 						var allDayEvents = this.allDayEventsByDay;
@@ -1015,7 +1017,7 @@
 
 								var index = 0;
 
-								function displayEvent(event) {
+								var displayEvent = function(event) {
 									var div = document.createElement('div');
 									div.className = event.className;
 									div.classList.add('event');
@@ -1070,7 +1072,7 @@
 									div.innerHTML = innerElement.join('');
 
 									return div;
-								}
+								};
 								dayEvents.forEach( function(event) {
 
 									while (parseInt(event.index) > index && index < maxEvents) {
@@ -1089,7 +1091,7 @@
 							}
 						}.bind(this));
 
-						var events = this.eventsByDay;
+						events = this.eventsByDay;
 
 						[].slice.call(this.$.agenda.querySelectorAll(".view .dayview")).forEach( function(day) {
 
@@ -1117,8 +1119,10 @@
 
 									var innerElement = [];
 
+									var time;
+
 									if (event.isStart) {
-										var time = moment(event.start, moment.ISO_8601).format('HH:mm');
+										time = moment(event.start, moment.ISO_8601).format('HH:mm');
 										innerElement.push('<span class="time">', time, '</span> ');
 									}
 									else {
@@ -1126,7 +1130,7 @@
 									}
 
 									if (event.isEnd) {
-										var time = moment(event.end, moment.ISO_8601).format('HH:mm');
+										time = moment(event.end, moment.ISO_8601).format('HH:mm');
 										innerElement.push('- <span class="time">', time, '</span> ');
 									}
 									else {
@@ -1271,7 +1275,7 @@
 			},
 
 			setTime: function(hour) {
-				var hour = (hour !== undefined && !isNaN(hour)) ? hour : this.hourShow;
+				hour = (hour !== undefined && !isNaN(hour)) ? hour : this.hourShow;
 				this.$.scrollarea.scrollTop = hour * this.hourHeight;
 			},
 
