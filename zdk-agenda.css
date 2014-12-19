@@ -228,7 +228,6 @@ div.monthview > div.row {
 	-webkit-flex: 1;
 	-ms-flex: 1;
 	flex: 1;
-	border-top: 1px solid #ccc;
 	height: 100px;
 }
 
@@ -239,6 +238,11 @@ div.monthview > div.row {
 	-ms-flex: 1;
 	flex: 1;
 	overflow: hidden;
+	height: 100%;
+}
+
+#monthview div.day {
+	border-top: solid 1px #ccc;
 }
 
 div#monthview > div.row > div.day > .border {
