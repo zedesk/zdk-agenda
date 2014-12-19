@@ -327,6 +327,10 @@ div.eventMonth,
 	pointer-events: none;
 }
 
+#agenda.dragging div.day > header {
+	pointer-events: none;
+}
+
 div.eventMonth.notStart,
 #all-day-events .event.notStart {
 	margin-left: -1px;

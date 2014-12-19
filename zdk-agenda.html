@@ -775,7 +775,7 @@
 										PolymerGestures.addEventListener(div, 'trackstart', function(e) {
 
 											this.dragging = true;
-											this.classList.add('dragging');
+											this.$.agenda.classList.add('dragging');
 
 											// Change opacity of the dragged event
 											var eventIndex = e.target.getAttribute('data-num');
@@ -811,37 +811,45 @@
 												this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 - local.top + 'px';
 												this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 - local.left + 'px';
 
-												var sdate = this.shadowRoot.elementFromPoint(e.pageX, e.pageY).getAttribute('data-date');
-												var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
+												var element = this.shadowRoot.elementFromPoint(e.pageX, e.pageY);
 
-												if (sdate && eventIndex && this.events.length > eventIndex) {
+												if (element) {
+													var sdate = this.shadowRoot.elementFromPoint(e.pageX, e.pageY).getAttribute('data-date');
+													var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
 
-													var date = moment(sdate, 'YYYY-MM-DD');
-													var event = this.events[eventIndex];
-													var start = moment(event.start, moment.ISO_8601);
-													var end = moment(event.end, moment.ISO_8601);
+													if (sdate && eventIndex && this.events.length > eventIndex) {
 
-													var diff = end.diff(start, 'days') + 1;
+														var date = moment(sdate, 'YYYY-MM-DD');
+														var event = this.events[eventIndex];
+														var start = moment(event.start, moment.ISO_8601);
+														var end = moment(event.end, moment.ISO_8601);
 
-													[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
-														var dayDate = moment(day.getAttribute('data-date'), 'YYYY-MM-DD');
+														var diff = end.diff(start, 'days') + 1;
 
-														if (dayDate.diff(date, 'days') >= 0 && dayDate.diff(date, 'days') < diff) {
-															day.classList.add('dragover');
-														}
-														else {
-															day.classList.remove('dragover');
-														}
-													});
+														[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
+															var dayDate = moment(day.getAttribute('data-date'), 'YYYY-MM-DD');
+
+															if (dayDate.diff(date, 'days') >= 0 && dayDate.diff(date, 'days') < diff) {
+																day.classList.add('dragover');
+															}
+															else {
+																day.classList.remove('dragover');
+															}
+														});
+
+														return;
+													}
 												}
+
+												[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
+														day.classList.remove('dragover');
+												});
 											}
 										}.bind(that));
 
 										PolymerGestures.addEventListener(div, 'trackend', function(e) {
 
 											if (this.dragging) {
-
-												this.classList.remove('dragging');
 
 												var dayDate = moment(e.relatedTarget.getAttribute('data-date'), 'YYYY-MM-DD');
 
@@ -871,7 +879,7 @@
 												}
 
 												this.dragging = false;
-												this.classList.add('dragging');
+												this.$.agenda.classList.remove('dragging');
 												this.$['drag-avatar'].style.display = 'none';
 
 												[].slice.call(this.$.agenda.querySelectorAll('.monthview .day')).forEach( function(day) {
@@ -1194,7 +1202,7 @@
 
 										PolymerGestures.addEventListener(eventElement, 'trackstart', function(e) {
 											this.dragging = true;
-											this.classList.add('dragging');
+											this.$.agenda.classList.add('dragging');
 
 											this.draggedEvent = e.target;
 											this.dragMouseInitialY = e.clientY;
@@ -1216,6 +1224,7 @@
 										PolymerGestures.addEventListener(eventElement, 'trackend', function(e) {
 											if (this.dragging && this.draggedEvent) {
 												this.dragging = false;
+												this.$.agenda.classList.remove('dragging');
 
 												if (this.events.length > this.draggedEvent.getAttribute('data-num')) {
 													var event = this.events[this.draggedEvent.getAttribute('data-num')];
