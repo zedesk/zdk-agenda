@@ -807,8 +807,9 @@
 
 										PolymerGestures.addEventListener(div, 'track', function(e) {
 											if (this.dragging) {
-												this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 + 'px';
-												this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 + 'px';
+												var local = this.getBoundingClientRect();
+												this.$['drag-avatar'].style.top = e.clientY - this.$['drag-avatar'].offsetHeight / 2 - local.top + 'px';
+												this.$['drag-avatar'].style.left = e.clientX - this.$['drag-avatar'].offsetWidth / 2 - local.left + 'px';
 
 												var sdate = this.shadowRoot.elementFromPoint(e.pageX, e.pageY).getAttribute('data-date');
 												var eventIndex = this.$['drag-avatar'].getAttribute('data-num');
