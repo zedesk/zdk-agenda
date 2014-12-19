@@ -295,8 +295,8 @@ div.day header {
 #view div.event {
 	position: absolute;
 	border-radius: 5px;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	/*overflow: hidden;
+	text-overflow: ellipsis;*/
 	font-size: 0.8em;
 	margin: 0px 2px;
 	right: 0px;
@@ -308,12 +308,16 @@ div.day header {
 	min-height: 40px;
 }
 
+#view div.event.deletable {
+	padding-top: 20px;
+}
+
 div.eventMonth,
 #all-day-events .event {
 	position: relative;
 	border-radius: 3px;
 	padding: 2px 4px;
-	/*overflow: hidden;*/
+	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size: 0.8em;
@@ -345,13 +349,17 @@ div.eventMonth.notEnd,
 	border-top-right-radius: 0;
 }
 
+div.eventMonth.deletable {
+	padding-right: 20px;
+}
+
 div.eventMonth > paper-icon-button.close,
 #all-day-events .event > paper-icon-button.close,
 #view div.event > paper-icon-button.close {
 	display: block;
 	position: absolute;
 	top: -10px;
-	right: -5px;
+	right: -10px;
 	color: white;
 	z-index: 0;
 }

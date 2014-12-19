@@ -932,6 +932,7 @@
 											e.stopPropagation();
 										});
 
+										div.classList.add('deletable');
 										div.appendChild(closeButton);
 									}
 
@@ -1060,6 +1061,7 @@
 											e.stopPropagation();
 										});
 
+										div.classList.add('deletable');
 										div.appendChild(closeButton);
 									}
 
@@ -1168,10 +1170,10 @@
 
 									// Height of the element (duration)
 									if (!event.isStart) {
-										eventElement.style.height = Math.min(end.diff(dayDate, 'seconds') / 3600, 24) * this.hourHeight + 'px';
+										eventElement.style.minHeight = Math.min(end.diff(dayDate, 'seconds') / 3600, 24) * this.hourHeight + 'px';
 									}
 									else if (end && end.isValid()) {
-										eventElement.style.height = Math.min(end.diff(start, 'seconds'), dayDate.add(1, 'day').diff(start, 'seconds')) / 3600 * this.hourHeight + 'px';
+										eventElement.style.minHeight = Math.min(end.diff(start, 'seconds'), dayDate.add(1, 'day').diff(start, 'seconds')) / 3600 * this.hourHeight + 'px';
 									}
 									else {
 										// No end date
@@ -1190,6 +1192,7 @@
 											e.stopPropagation();
 										});
 
+										eventElement.classList.add('deletable');
 										eventElement.appendChild(closeButton);
 									}
 
