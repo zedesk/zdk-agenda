@@ -184,7 +184,8 @@
 							end: moment(eventElement.getAttribute('end'), 'YYYY-MM-DD HH:mm').toISOString(),
 							label: eventElement.getAttribute('label'),
 							className: eventElement.className,
-							allDay: eventElement.getAttribute('all-day') || false
+							allDay: eventElement.getAttribute('all-day') || false,
+							recurring: eventElement.getAttribute('recurring')
 						};
 						this.events.push(event);
 					}.bind(this));
@@ -526,9 +527,27 @@
 			},
 
 			_computeEvents: function(dayNodeList, allDayEvents, hourEvents) {
+
+				function clone(obj) {
+					if (obj === null || typeof(obj) != 'object')
+						return obj;
+
+					var temp = obj.constructor(); // changed
+
+					for (var key in obj) {
+						if (obj.hasOwnProperty(key)) {
+								temp[key] = clone(obj[key]);
+						}
+					}
+					return temp;
+				}
+
 				var events = {};
 				var d = 0;
 				[].slice.call(dayNodeList).forEach( function(day) {
+
+					var copyEvent;
+					var diff;
 
 					var dayEvents = [];
 					var dayDate = moment(day.getAttribute("data-date"));
@@ -556,6 +575,23 @@
 								)
 							) {
 							dayEvents.push(this.events[i]);
+						}
+						else if (date.isBefore(dayDate, 'day') &&
+							       this.events[i].recurring) {
+							// Recurring events
+							var recInfos = this.events[i].recurring.split('_');
+
+							switch (recInfos[0]) {
+								case 'day':
+									diff = -moment(date).startOf('day').diff(dayDate, 'days');
+
+									if (diff % parseInt(recInfos[1], 10) === 0) {
+										copyEvent = clone(this.events[i]);
+										copyEvent.start = date.add(diff, 'days').toISOString();
+										dayEvents.push(copyEvent);
+									}
+									break;
+							}
 						}
 						else if (date.isAfter(dayDate, 'day')) {
 							continue;
@@ -591,20 +627,6 @@
 								while (indexExists(events[dayDate.format('YYYY-MM-DD')], index)) {
 									index++;
 								}
-							}
-
-							function clone(obj) {
-								if (obj === null || typeof(obj) != 'object')
-									return obj;
-
-								var temp = obj.constructor(); // changed
-
-								for (var key in obj) {
-									if (obj.hasOwnProperty(key)) {
-											temp[key] = clone(obj[key]);
-									}
-								}
-								return temp;
 							}
 
 							var i = moment(date.format('YYYY-MM-DD'), 'YYYY-MM-DD');
