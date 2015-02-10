@@ -552,6 +552,7 @@
 					var dayEvents = [];
 					var dayDate = moment(day.getAttribute("data-date"));
 					var length = this.events.length;
+					var recDays = [];
 
 					for (var i = 0; i < length; i++) {
 
@@ -588,6 +589,21 @@
 									if (diff % parseInt(recInfos[1], 10) === 0) {
 										copyEvent = clone(this.events[i]);
 										copyEvent.start = date.add(diff, 'days').toISOString();
+										copyEvent.end = dateEnd.add(diff, 'days').toISOString();
+										dayEvents.push(copyEvent);
+									}
+									break;
+								case 'week':
+									recDays = recInfos[2] ? recInfos[2].split(',') : [];
+									diff = -moment(date).startOf('day').diff(dayDate, 'days');
+
+									if (diff !== 0 &&
+										moment(date).startOf('week').diff(dayDate, 'weeks') % parseInt(recInfos[1], 10) === 0 &&
+										recDays.indexOf(dayDate.day().toString()) >= -0) {
+
+										copyEvent = clone(this.events[i]);
+										copyEvent.start = date.add(diff, 'days').toISOString();
+										copyEvent.end = dateEnd.add(diff, 'days').toISOString();
 										dayEvents.push(copyEvent);
 									}
 									break;
