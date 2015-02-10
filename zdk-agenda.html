@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../core-style/core-style.html">
 <link rel="import" href="../core-toolbar/core-toolbar.html">
 <link rel="import" href="../core-icons/core-icons.html">
 <link rel="import" href="../core-item/core-item.html">
@@ -12,6 +13,84 @@
 
 <script src="../momentjs/min/moment-with-locales.min.js"></script>
 
+<core-style id="zdk-agenda">
+html /deep/ .event1  { background: #1ABC9C; }
+html /deep/ .event2  { background: #2ECC71; }
+html /deep/ .event3  { background: #3498DB; }
+html /deep/ .event4  { background: #9B59B6; }
+html /deep/ .event5  { background: #34495E; }
+html /deep/ .event6  { background: #33cc33; }
+html /deep/ .event7  { background: #E67E22; }
+html /deep/ .event8  { background: #E74C3C; }
+html /deep/ .event9  { background: #16A085; }
+html /deep/ .event10 { background: #27AE60; }
+html /deep/ .event11 { background: #2980B9; }
+html /deep/ .event12 { background: #8E44AD; }
+
+html /deep/ paper-dropdown div.eventMonth {
+	position: relative;
+	border-radius: 3px;
+	padding: 2px 4px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.8em;
+	margin: 1px 2px;
+	color: white;
+	height: 15px;
+	cursor: pointer;
+}
+
+html /deep/ paper-dropdown div.eventMonth.notStart {
+	margin-left: -1px;
+	border-bottom-left-radius: 0;
+	border-top-left-radius: 0;
+}
+
+html /deep/ paper-dropdown div.eventMonth.notEnd {
+	margin-right: -1px;
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+}
+
+html /deep/ paper-dropdown div.eventMonth.deletable {
+	padding-right: 20px;
+}
+
+html /deep/ paper-dropdown div.eventMonth > paper-icon-button.close {
+	display: block;
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	color: white;
+	z-index: 0;
+}
+
+html /deep/ paper-dropdown {
+	min-width: 100px;
+	font-family: 'Oxygen', Verdana, Arial;
+	font-size: 14px;
+}
+
+html /deep/ paper-dropdown div.eventMonth.notStart {
+	margin-left: 0;
+}
+
+html /deep/ paper-dropdown div.eventMonth.notEnd {
+	margin-right: 0;
+}
+
+html /deep/ paper-dropdown div.eventMonth span.time {
+	font-weight: 700;
+	pointer-events: none;
+}
+
+html /deep/ paper-dropdown div.eventMonth span.title {
+	font-weight: 300;
+	pointer-events: none;
+}
+</core-style>
+<core-style ref="zdk-agenda"></core-style>
 <polymer-element name="zdk-agenda" attributes="date lang view hourHeight hourShow editable deleteButtons deleteIcon">
 	<template>
 		<link rel="stylesheet" href="zdk-agenda.css">
@@ -1009,7 +1088,7 @@
 									df.appendChild(div);
 
 									var dropdownElement = document.createElement('paper-dropdown');
-									//dropdownElement.setAttribute('layered', true);
+									dropdownElement.setAttribute('layered', true);
 									index = 0;
 									dayEvents.forEach( function(event) {
 										while (parseInt(event.index) > index) {
