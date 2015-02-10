@@ -33,10 +33,10 @@ zdk-agenda is a calendar/agenda web component, using Polymer, that present diffe
 
 | Attribute     | Type (default) | Description                 |
 | ------------- | -------------- | --------------------------- |
-| `lang`        | string         | Language                    |
-| `hourHeight`  | number         |                             |
-| `hourShow`    | number         |                             |
-| `view`        | string         | The initial view to display (`day`, `week`, `month` or `planning`) |
+| `lang`        | String         | Language                    |
+| `hourHeight`  | Number         | Height of an hour in day/week views (in pixels) |
+| `hourShow`    | Number         | Start hour to show in day/week views |
+| `view`        | String         | The initial view to display (`day`, `week`, `month` or `planning`) |
 
 # Methods
 
@@ -74,11 +74,31 @@ An event item has such attributes:
 
 | Attribute     | Type (default) | Description                      |
 | ------------- | -------------- | -------------------------------- |
-| `label`       | string         | Label to display                 |
-| `start`       | string         | Start datetime (ISO 8601 format) |
-| `end`         | string         | End datetime (ISO 8601 format)   |
-| `className`   | string         | Classname                        |
-| `allDay`      | boolean        | Is it an all-day event?          |
+| `label`       | String         | Label to display                 |
+| `start`       | String         | Start datetime (ISO 8601 format) |
+| `end`         | String         | End datetime (ISO 8601 format)   |
+| `className`   | String         | Classname                        |
+| `allDay`      | Boolean        | Is it an all-day event?          |
+| `recurring`   | String         | Recurring data (see below)       |
+
+## Recurring events
+
+Events can be repeated daily or weekly, by setting the `recurring` attribute which has the following format:
+
+`[type]_[count]_[days]`
+
+where
+
+* `type` is the type of repetition ("day" or "week") ;
+* `count` is the interval between events in the "type" units ;
+* `days` is a comma-separated list of days affected by weekly events.
+
+Some extra properties could be added in the future.
+
+Some examples:
+
+* `day_3`: the event is repeated every 3 days ;
+* `week_2_1,2`: the event is repeated every two weeks, on Monday and Tuesday.
 
 # Events
 
