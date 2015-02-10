@@ -279,19 +279,6 @@ div.day header {
 	padding-left: 5px;
 }
 
-.event1  { background: #1ABC9C; }
-.event2  { background: #2ECC71; }
-.event3  { background: #3498DB; }
-.event4  { background: #9B59B6; }
-.event5  { background: #34495E; }
-.event6  { background: #33cc33; }
-.event7  { background: #E67E22; }
-.event8  { background: #E74C3C; }
-.event9  { background: #16A085; }
-.event10 { background: #27AE60; }
-.event11 { background: #2980B9; }
-.event12 { background: #8E44AD; }
-
 #view div.event {
 	position: absolute;
 	border-radius: 5px;
